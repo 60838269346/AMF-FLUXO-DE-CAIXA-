@@ -156,19 +156,55 @@
         </section>
 
 
-        <!-- ================= TELA 2: ÁREA DE LANÇAMENTOS (INTOCADA) ================= -->
+        <!-- ================= TELA 2: ÁREA DE LANÇAMENTOS ================= -->
         <section id="tab-lancamentos" class="tab-content space-y-6">
             <div>
                 <h2 class="text-2xl font-bold text-slate-900">Área de Lançamentos</h2>
-                <p class="text-sm text-gray-500 mt-1">Registre novas entradas ou saídas para atualizar o fluxo de caixa</p>
+                <p class="text-sm text-gray-500 mt-1">Registre novas entradas ou saídas por período semanal para atualizar o fluxo de caixa</p>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <form id="form-lancamento" onsubmit="salvarLancamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Data</label>
-                        <input type="date" id="input-data" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ano</label>
+                        <select id="input-ano" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Mês</label>
+                        <select id="input-mes" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Selecione o Mês...</option>
+                            <option value="01">Janeiro</option>
+                            <option value="02">Fevereiro</option>
+                            <option value="03">Março</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Maio</option>
+                            <option value="06">Junho</option>
+                            <option value="07">Julho</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Semana</label>
+                        <select id="input-semana" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Selecione a Semana...</option>
+                            <option value="1">Semana 1 (Dias 1 a 7)</option>
+                            <option value="2">Semana 2 (Dias 8 a 14)</option>
+                            <option value="3">Semana 3 (Dias 15 a 21)</option>
+                            <option value="4">Semana 4 (Dias 22 a 28)</option>
+                            <option value="5">Semana 5 (Dias 29 a 31)</option>
+                        </select>
                     </div>
 
                     <div>
@@ -195,7 +231,7 @@
                         <input type="text" id="input-historico" placeholder="Detalhes do lançamento..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor (R$)</label>
                         <input type="number" step="0.01" id="input-valor" placeholder="0,00" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
@@ -234,14 +270,15 @@
         }
 
         let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
-        document.getElementById('input-data').valueAsDate = new Date();
 
         function salvarLancamento(event) {
             event.preventDefault();
 
             const novoItem = {
                 id: Date.now(),
-                data: document.getElementById('input-data').value,
+                ano: document.getElementById('input-ano').value,
+                mes: document.getElementById('input-mes').value,
+                semana: document.getElementById('input-semana').value,
                 grupo: document.getElementById('input-grupo').value,
                 conta: document.getElementById('input-conta').value,
                 historico: document.getElementById('input-historico').value || '-',
@@ -251,12 +288,13 @@
             lancamentos.push(novoItem);
             localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
 
-            // Limpa formulário
+            // Limpa formulário (mantém ano selecionado)
+            document.getElementById('input-mes').value = '';
+            document.getElementById('input-semana').value = '';
             document.getElementById('input-grupo').value = '';
             document.getElementById('input-conta').value = '';
             document.getElementById('input-historico').value = '';
             document.getElementById('input-valor').value = '';
-            document.getElementById('input-data').valueAsDate = new Date();
 
             atualizarTela();
             switchTab('fluxo');
@@ -275,7 +313,9 @@
                 return;
             }
             const dadosExport = lancamentos.map(item => ({
-                Data: item.data,
+                Ano: item.ano,
+                Mês: item.mes,
+                Semana: `Semana ${item.semana}`,
                 Grupo: item.grupo,
                 Conta: item.conta,
                 Historico: item.historico,
@@ -296,9 +336,11 @@
             const doc = new jsPDF();
             doc.text("AMF - Extrato de Lançamentos", 14, 15);
             
-            const colunas = ["Data", "Grupo", "Conta", "Histórico", "Valor"];
+            const colunas = ["Ano", "Mês", "Semana", "Grupo", "Conta", "Histórico", "Valor"];
             const linhas = lancamentos.map(item => [
-                item.data,
+                item.ano,
+                item.mes,
+                `Sem. ${item.semana}`,
                 item.grupo,
                 item.conta,
                 item.historico,
@@ -317,37 +359,16 @@
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        function obterSemanaDoMes(dataStr) {
-            const partes = dataStr.split('-'); // Espera formato AAAA-MM-DD do input date
-            if (partes.length !== 3) return 1;
-            const dia = parseInt(partes[2], 10);
-            
-            if (dia <= 7) return 1;
-            if (dia <= 14) return 2;
-            if (dia <= 21) return 3;
-            if (dia <= 28) return 4;
-            return 5;
-        }
-
         function atualizarTela() {
             const anoFiltro = document.getElementById('filtro-ano').value;
             const mesFiltro = document.getElementById('filtro-mes').value;
             const semanaFiltro = document.getElementById('filtro-semana').value;
 
-            // Filtra os lançamentos de acordo com os selects
+            // Filtra os lançamentos de acordo com os selects (Ano, Mês e Semana)
             const lancamentosFiltrados = lancamentos.filter(item => {
-                if (!item.data) return false;
-                const partes = item.data.split('-'); // AAAA-MM-DD
-                if (partes.length !== 3) return false;
-
-                const ano = partes[0];
-                const mes = partes[1];
-                const semana = obterSemanaDoMes(item.data).toString();
-
-                if (anoFiltro && ano !== anoFiltro) return false;
-                if (mesFiltro && mes !== mesFiltro) return false;
-                if (semanaFiltro && semana !== semanaFiltro) return false;
-
+                if (anoFiltro && item.ano !== anoFiltro) return false;
+                if (mesFiltro && item.mes !== mesFiltro) return false;
+                if (semanaFiltro && item.semana !== semanaFiltro) return false;
                 return true;
             });
 
