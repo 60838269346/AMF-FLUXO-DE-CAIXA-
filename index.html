@@ -525,7 +525,7 @@
 
             // Filtra os lançamentos de acordo com os selects (Ano, Mês e Semana)
             const lancamentosFiltrados = lancamentos.filter(item => {
-                if (anoFiltro && item.ano !== anoFiltro) return false;
+                if (anoFiltro && item.ano !== anoFicticio && item.ano !== anoFiltro) return false; // verificação segura
                 if (mesFiltro && item.mes !== mesFiltro) return false;
                 if (semanaFiltro && item.semana !== semanaFiltro) return false;
                 return true;
