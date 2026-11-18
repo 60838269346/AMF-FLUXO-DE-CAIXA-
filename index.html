@@ -10,18 +10,18 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
-    
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
     <!-- Header -->
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+    <header class="border-b border-slate-200 bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded text-sm tracking-wider">AMF</div>
-                <h1 class="text-xl font-semibold tracking-tight text-white">Fluxo de Caixa & DRE Gerencial</h1>
+                <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm tracking-wider shadow-sm">AMF</div>
+                <h1 class="text-xl font-semibold tracking-tight text-slate-900">Fluxo de Caixa & DRE Gerencial</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <span id="statusSync" class="text-xs text-amber-400 font-medium">Modo Local (Offline)</span>
-                <button onclick="configurarJSONBin()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded border border-slate-700 transition-colors">
+                <span id="statusSync" class="text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">Modo Local (Offline)</span>
+                <button onclick="configurarJSONBin()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded border border-slate-300 font-medium transition-colors">
                     Configurar JSONBin
                 </button>
             </div>
@@ -32,13 +32,13 @@
     <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <!-- Formulário de Lançamento -->
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl h-fit">
-            <h2 class="text-lg font-medium text-amber-400 mb-4 pb-2 border-b border-slate-800">Novo Lançamento</h2>
+        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm h-fit">
+            <h2 class="text-lg font-semibold text-blue-900 mb-4 pb-2 border-b border-slate-100">Novo Lançamento</h2>
             
             <form id="formLancamento" class="space-y-4">
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Grupo de Classificação</label>
-                    <select id="tipo" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-amber-500 focus:outline-none" onchange="atualizarSubcategorias()" required>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Grupo de Classificação</label>
+                    <select id="tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" onchange="atualizarSubcategorias()" required>
                         <option value="Recebimento">(+) Recebimentos</option>
                         <option value="Imposto">(-) Impostos</option>
                         <option value="Custo Direto">(-) Custo Direto</option>
@@ -51,29 +51,29 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Subcategoria / Conta</label>
-                    <select id="subcategoria" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-amber-500 focus:outline-none" required>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Subcategoria / Conta</label>
+                    <select id="subcategoria" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
                         <!-- Preenchido dinamicamente via JS -->
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Histórico / Descrição</label>
-                    <input type="text" id="descricao" placeholder="Ex: Honorários, DAS Simples, Aluguel..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-amber-500 focus:outline-none" required>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Histórico / Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Honorários, DAS Simples, Aluguel..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Valor (R$)</label>
-                        <input type="number" step="0.01" id="valor" placeholder="0,00" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-amber-500 focus:outline-none" required>
+                        <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" id="valor" placeholder="0,00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Data</label>
-                        <input type="date" id="data" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm focus:border-amber-500 focus:outline-none" required>
+                        <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Data</label>
+                        <input type="date" id="data" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold py-2.5 rounded-lg transition-colors text-sm tracking-wide mt-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm tracking-wide shadow-sm mt-2">
                     Lançar no Fluxo
                 </button>
             </form>
@@ -84,29 +84,28 @@
             
             <!-- Cards de Indicadores (DRE Gerencial) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                    <span class="text-xs text-slate-400 uppercase tracking-wider">(=) Margem de Contribuição</span>
-                    <p id="cardMargem" class="text-2xl font-semibold text-sky-400 mt-1">R$ 0,00</p>
-                    <p class="text-[10px] text-slate-500 mt-1">Receita - (Impostos + Custos + Pessoal + Comissões)</p>
+                <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">(=) Margem de Contribuição</span>
+                    <p id="cardMargem" class="text-2xl font-bold text-blue-600 mt-1">R$ 0,00</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Receita - (Impostos + Custos + Pessoal + Comissões)</p>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                    <span class="text-xs text-slate-400 uppercase tracking-wider">(=) Lucro Operacional</span>
-                    <p id="cardLucro" class="text-2xl font-semibold text-amber-400 mt-1">R$ 0,00</p>
-                    <p class="text-[10px] text-slate-500 mt-1">Margem - (Despesas Fixas e Variáveis restantes)</p>
+                <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">(=) Lucro Operacional</span>
+                    <p id="cardLucro" class="text-2xl font-bold text-slate-800 mt-1">R$ 0,00</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Margem - (Despesas Fixas e Variáveis restantes)</p>
                 </div>
             </div>
 
             <!-- Tabela de Lançamentos -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl overflow-hidden">
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-medium text-white">Extrato Consolidado</h2>
-                    <button onclick="limparDados()" class="text-xs text-rose-400 hover:underline">Limpar Tudo</button>
+                    <h2 class="text-lg font-semibold text-slate-900">Extrato Consolidado</h2>
+                    <button onclick="limparDados()" class="text-xs text-rose-600 hover:underline font-medium">Limpar Tudo</button>
                 </div>
-                
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                            <tr class="border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider bg-slate-50">
                                 <th class="py-3 px-3">Data</th>
                                 <th class="py-3 px-3">Grupo</th>
                                 <th class="py-3 px-3">Conta / Subcategoria</th>
@@ -115,7 +114,7 @@
                                 <th class="py-3 px-3 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaLancamentos" class="divide-y divide-slate-800/60">
+                        <tbody id="tabelaLancamentos" class="divide-y divide-slate-100">
                             <!-- Inserido dinamicamente -->
                         </tbody>
                     </table>
@@ -123,7 +122,6 @@
             </div>
 
         </section>
-
     </main>
 
     <script>
@@ -142,6 +140,10 @@
         let jsonbinApiKey = localStorage.getItem('amf_jsonbin_key') || '';
         let jsonbinBinId = localStorage.getItem('amf_jsonbin_bin') || '';
 
+        document.getElementById('data').valueAsDate = new Date();
+        atualizarSubcategorias();
+        renderizar();
+
         function formatarMoeda(valor) {
             return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
@@ -150,7 +152,6 @@
             const tipoSelect = document.getElementById('tipo').value;
             const subcatSelect = document.getElementById('subcategoria');
             subcatSelect.innerHTML = '';
-            
             subcategoriasMap[tipoSelect].forEach(sub => {
                 const option = document.createElement('option');
                 option.value = sub;
@@ -179,9 +180,7 @@
                 document.getElementById('statusSync').textContent = "Modo Local (Offline)";
                 return;
             }
-
             document.getElementById('statusSync').textContent = "Sincronizando...";
-
             try {
                 const resposta = await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}/latest`, {
                     headers: { 'X-Master-Key': jsonbinApiKey }
@@ -203,9 +202,7 @@
 
         async function salvarNaNuven() {
             localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-            
             if (!jsonbinApiKey || !jsonbinBinId) return;
-
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}`, {
                     method: 'PUT',
@@ -224,7 +221,6 @@
 
         document.getElementById('formLancamento').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const novo = {
                 id: Date.now(),
                 tipo: document.getElementById('tipo').value,
@@ -233,7 +229,6 @@
                 valor: parseFloat(document.getElementById('valor').value),
                 data: document.getElementById('data').value
             };
-
             lancamentos.push(novo);
             await salvarNaNuven();
             renderizar();
@@ -260,17 +255,10 @@
             const tbody = document.getElementById('tabelaLancamentos');
             tbody.innerHTML = '';
 
-            let receitas = 0;
-            let impostos = 0;
-            let custoDireto = 0;
-            let despesaPessoal = 0;
-            let comissoes = 0;
-            let despComercial = 0;
-            let despAdm = 0;
-            let outrasDespesas = 0;
+            let receitas = 0, impostos = 0, custoDireto = 0, despesaPessoal = 0, comissoes = 0, despComercial = 0, despAdm = 0, outrasDespesas = 0;
 
             if (lancamentos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">Nenhum lançamento cadastrado ainda.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhum lançamento cadastrado ainda.</td></tr>`;
             }
 
             const listaOrdenada = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
@@ -286,44 +274,32 @@
                 else if (l.tipo === 'Outras Despesas') outrasDespesas += l.valor;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/40 transition-colors";
+                tr.className = "hover:bg-slate-50 transition-colors";
                 
-                const isReceita = l.tipo === 'Recebimento';
-                const corValor = isReceita ? 'text-emerald-400' : 'text-rose-400';
-                const sinal = isReceita ? '+' : '-';
-                const [ano, mes, dia] = l.data.split('-');
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                const corValor = l.tipo === 'Recebimento' ? 'text-emerald-600 font-medium' : 'text-slate-700';
+                const sinal = l.tipo === 'Recebimento' ? '+' : '-';
 
                 tr.innerHTML = `
-                    <td class="py-3 px-3 text-slate-300 text-xs">${dataFormatada}</td>
-                    <td class="py-3 px-3 font-medium text-xs">
-                        <span class="px-2 py-1 rounded text-[10px] uppercase font-bold ${isReceita ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/50' : 'bg-rose-950 text-rose-400 border border-rose-800/50'}">
-                            ${l.tipo}
-                        </span>
-                    </td>
-                    <td class="py-3 px-3 text-slate-300 text-xs">${l.subcategoria}</td>
-                    <td class="py-3 px-3 text-slate-300 text-xs">${l.descricao}</td>
-                    <td class="py-3 px-3 text-right font-semibold ${corValor} text-xs">${sinal} ${formatarMoeda(l.valor)}</td>
+                    <td class="py-3 px-3 text-slate-600">${new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td class="py-3 px-3 text-slate-800 font-medium">${l.tipo}</td>
+                    <td class="py-3 px-3 text-slate-600">${l.subcategoria}</td>
+                    <td class="py-3 px-3 text-slate-600">${l.descricao}</td>
+                    <td class="py-3 px-3 text-right ${corValor}">${sinal} ${formatarMoeda(l.valor)}</td>
                     <td class="py-3 px-3 text-center">
-                        <button onclick="excluirLancamento(${l.id})" class="text-slate-500 hover:text-rose-400 text-xs">Excluir</button>
+                        <button onclick="excluirLancamento(${l.id})" class="text-rose-500 hover:text-rose-700 text-xs font-medium">Excluir</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            const margemContribuicao = receitas - (impostos + custoDireto + despesaPessoal + comissoes);
-            const lucroOperacional = margemContribuicao - (despComercial + despAdm + outrasDespesas);
+            const margem = receitas - (impostos + custoDireto + despesaPessoal + comissoes);
+            const lucro = margem - (despComercial + despAdm + outrasDespesas);
 
-            document.getElementById('cardMargem').textContent = formatarMoeda(margemContribuicao);
-            document.getElementById('cardLucro').textContent = formatarMoeda(lucroOperacional);
-            
-            document.getElementById('cardMargem').className = `text-2xl font-semibold mt-1 ${margemContribuicao >= 0 ? 'text-sky-400' : 'text-rose-400'}`;
-            document.getElementById('cardLucro').className = `text-2xl font-semibold mt-1 ${lucroOperacional >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            document.getElementById('cardMargem').textContent = formatarMoeda(margem);
+            const elLucro = document.getElementById('cardLucro');
+            elLucro.textContent = formatarMoeda(lucro);
+            elLucro.className = `text-2xl font-bold mt-1 ${lucro >= 0 ? 'text-blue-600' : 'text-rose-600'}`;
         }
-
-        document.getElementById('data').valueAsDate = new Date();
-        atualizarSubcategorias();
-        sincronizarComNuvem();
     </script>
 </body>
 </html>
