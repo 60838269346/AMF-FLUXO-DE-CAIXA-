@@ -3,441 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMF - Fluxo de Caixa</title>
-    <!-- Tailwind CSS para estilização moderna -->
+    <title>AMF - Fluxo de Caixa & DRE Gerencial</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (XLSX) para exportar Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF e autoTable para exportar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700&display=swap" rel="stylesheet">
     <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-    <!-- Cabeçalho Principal -->
-    <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <span class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm tracking-wider shadow">AMF</span>
-                <h1 class="text-xl font-semibold tracking-wide">Fluxo de Caixa</h1>
-            </div>
-            
-            <!-- Ações e Menu de Abas -->
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- Botões de Exportação -->
-                <div class="flex items-center gap-2">
-                    <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Excel
-                    </button>
-                    <button onclick="exportarPDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        PDF
-                    </button>
-                </div>
-
-                <!-- Menu de Navegação por Abas -->
-                <nav class="flex gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                    <button onclick="switchTab('fluxo')" id="btn-fluxo" class="px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow">
-                        1. Demonstrativo & Fluxo
-                    </button>
-                    <button onclick="switchTab('lancamentos')" id="btn-lancamentos" class="px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700">
-                        2. Área de Lançamentos
-                    </button>
-                </nav>
+    <!-- Header -->
+    <header class="border-b border-slate-200 bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm tracking-wider shadow-sm">AMF</div>
+                <h1 class="text-xl font-semibold tracking-tight text-slate-900">Fluxo de Caixa & DRE Gerencial</h1>
             </div>
         </div>
     </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
-
-        <!-- ================= TELA 1: DEMONSTRATIVO & FLUXO ================= -->
-        <section id="tab-fluxo" class="tab-content active space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Formulário de Lançamento -->
+        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm h-fit">
+            <h2 class="text-lg font-semibold text-blue-900 mb-4 pb-2 border-b border-slate-100">Novo Lançamento</h2>
+            
+            <form id="formLancamento" class="space-y-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Demonstrativo & Fluxo de Caixa</h2>
-                    <p class="text-sm text-gray-500 mt-1">Acompanhamento dos resultados consolidados da empresa</p>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Grupo de Classificação</label>
+                    <select id="tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" onchange="atualizarSubcategorias()" required>
+                        <option value="Recebimento">(+) Recebimentos</option>
+                        <option value="Imposto">(-) Impostos</option>
+                        <option value="Custo Direto">(-) Custo Direto</option>
+                        <option value="Despesa Pessoal">(-) Despesa com Pessoal</option>
+                        <option value="Comissao">(-) Comissões Comerciais Diretas</option>
+                        <option value="Despesa Comercial">(-) Despesas Comerciais</option>
+                        <option value="Despesa Administrativa">(-) Despesas Administrativas</option>
+                        <option value="Outras Despesas">(-) Outras Despesas Variáveis</option>
+                    </select>
                 </div>
 
-                <!-- Barra de Filtros (Ano, Mês e Semana) -->
-                <div class="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
-                    <!-- Filtro de Ano -->
-                    <div class="flex items-center gap-2">
-                        <label for="filtroAno" class="text-xs font-semibold text-gray-600 uppercase">Ano:</label>
-                        <select id="filtroAno" onchange="filtrarFluxoCaixa()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">Todos</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Subcategoria / Conta</label>
+                    <select id="subcategoria" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
+                        <!-- Preenchido dinamicamente via JS -->
+                    </select>
+                </div>
 
-                    <!-- Filtro de Mês -->
-                    <div class="flex items-center gap-2">
-                        <label for="filtroMes" class="text-xs font-semibold text-gray-600 uppercase">Mês:</label>
-                        <select id="filtroMes" onchange="filtrarFluxoCaixa()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">Todos</option>
-                            <option value="01">Janeiro</option>
-                            <option value="02">Fevereiro</option>
-                            <option value="03">Março</option>
-                            <option value="04">Abril</option>
-                            <option value="05">Maio</option>
-                            <option value="06">Junho</option>
-                            <option value="07">Julho</option>
-                            <option value="08">Agosto</option>
-                            <option value="09">Setembro</option>
-                            <option value="10">Outubro</option>
-                            <option value="11">Novembro</option>
-                            <option value="12">Dezembro</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Histórico / Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Honorários, DAS Simples, Aluguel..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
+                </div>
 
-                    <!-- Filtro de Semana -->
-                    <div class="flex items-center gap-2">
-                        <label for="filtroSemana" class="text-xs font-semibold text-gray-600 uppercase">Semana:</label>
-                        <select id="filtroSemana" onchange="filtrarFluxoCaixa()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">Todas</option>
-                            <option value="1">Semana 1 (1 a 7)</option>
-                            <option value="2">Semana 2 (8 a 14)</option>
-                            <option value="3">Semana 3 (15 a 21)</option>
-                            <option value="4">Semana 4 (22 a 31)</option>
-                        </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" id="valor" placeholder="0,00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Data</label>
+                        <input type="date" id="data" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-800" required>
                     </div>
                 </div>
-            </div>
 
-            <!-- Estrutura do Demonstrativo (DRE Gerencial Detalhada) -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-semibold text-lg text-slate-800">Fluxo de caixa empresa</h3>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm tracking-wide shadow-sm mt-2">
+                    Lançar no Fluxo
+                </button>
+            </form>
+        </section>
+
+        <!-- Relatório e Listagem -->
+        <section class="lg:col-span-2 space-y-6">
+            
+            <!-- Cards de Indicadores (DRE Gerencial) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">(=) Margem de Contribuição</span>
+                    <p id="cardMargem" class="text-2xl font-bold text-blue-600 mt-1">R$ 0,00</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Receita - (Impostos + Custos + Pessoal + Comissões)</p>
                 </div>
-                <div class="p-6 divide-y divide-gray-100 text-sm">
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(+) Recebimentos</span>
-                        <span id="dre-receita" class="font-semibold text-emerald-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(-) Impostos</span>
-                        <span id="dre-impostos" class="font-semibold text-rose-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(-) Custos</span>
-                        <span id="dre-custos" class="font-semibold text-rose-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(-) Pessoal</span>
-                        <span id="dre-pessoal" class="font-semibold text-rose-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(-) Comissões</span>
-                        <span id="dre-comissoes" class="font-semibold text-rose-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3.5 flex justify-between items-center bg-gray-50 px-3 rounded-lg">
-                        <span class="font-bold text-slate-900">(=) Margem de Contribuição</span>
-                        <span id="dre-margem" class="font-bold text-slate-900">R$ 0,00</span>
-                    </div>
-                    <div class="py-3 flex justify-between items-center">
-                        <span class="font-medium text-gray-700">(-) Despesas Fixas e Variáveis</span>
-                        <span id="dre-despesas" class="font-semibold text-rose-600">R$ 0,00</span>
-                    </div>
-                    <div class="py-3.5 flex justify-between items-center bg-blue-50 px-3 rounded-lg">
-                        <span class="font-bold text-blue-900">(=) Lucro Operacional Líquido</span>
-                        <span id="dre-lucro" class="font-bold text-blue-900">R$ 0,00</span>
-                    </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">(=) Lucro Operacional</span>
+                    <p id="cardLucro" class="text-2xl font-bold text-slate-800 mt-1">R$ 0,00</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Margem - (Despesas Fixas e Variáveis restantes)</p>
                 </div>
             </div>
 
-            <!-- Tabela de Lançamentos Filtrados -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-semibold text-lg text-slate-800">Lançamentos no Período Selecionado</h3>
+            <!-- Tabela de Lançamentos -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-slate-900">Extrato Consolidado</h2>
+                    <button onclick="limparDados()" class="text-xs text-rose-600 hover:underline font-medium">Limpar Tudo</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
-                                <th class="p-3.5 font-semibold">Data</th>
-                                <th class="p-3.5 font-semibold">Grupo</th>
-                                <th class="p-3.5 font-semibold">Conta</th>
-                                <th class="p-3.5 font-semibold">Histórico</th>
-                                <th class="p-3.5 font-semibold text-right">Valor</th>
-                                <th class="p-3.5 font-semibold text-center">Ações</th>
+                            <tr class="border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider bg-slate-50">
+                                <th class="py-3 px-3">Data</th>
+                                <th class="py-3 px-3">Grupo</th>
+                                <th class="py-3 px-3">Conta / Subcategoria</th>
+                                <th class="py-3 px-3">Histórico</th>
+                                <th class="py-3 px-3 text-right">Valor</th>
+                                <th class="py-3 px-3 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-lancamentos-corpo" class="divide-y divide-gray-100">
-                            <!-- Inserido via JavaScript -->
+                        <tbody id="tabelaLancamentos" class="divide-y divide-slate-100">
+                            <!-- Inserido dinamicamente -->
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </section>
-
-
-        <!-- ================= TELA 2: ÁREA DE LANÇAMENTOS ================= -->
-        <section id="tab-lancamentos" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-900">Área de Lançamentos</h2>
-                <p class="text-sm text-gray-500 mt-1">Registre novas entradas ou saídas para atualizar o fluxo de caixa</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <form id="form-lancamento" onsubmit="salvarLancamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Data</label>
-                        <input type="date" id="input-data" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grupo / Tipo</label>
-                        <select id="input-grupo" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">Selecione o Grupo...</option>
-                            <option value="Recebimento">Recebimento</option>
-                            <option value="Impostos">Impostos</option>
-                            <option value="Custos">Custos</option>
-                            <option value="Pessoal">Pessoal</option>
-                            <option value="Comissões">Comissões</option>
-                            <option value="Despesas Fixas">Despesas Fixas</option>
-                            <option value="Despesas Variáveis">Despesas Variáveis</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Conta / Subcategoria</label>
-                        <input type="text" id="input-conta" placeholder="Ex: Vendas Online, Aluguel..." required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Histórico / Descrição</label>
-                        <input type="text" id="input-historico" placeholder="Detalhes do lançamento..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor (R$)</label>
-                        <input type="number" step="0.01" id="input-valor" placeholder="0,00" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
-                            Adicionar Lançamento
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </section>
-
     </main>
 
-    <!-- Rodapé -->
-    <footer class="bg-white border-t border-gray-200 mt-auto py-4 text-center text-xs text-gray-400">
-        AMF Sistema Financeiro &bull; Todos os direitos reservados
-    </footer>
-
-    <!-- Script de Controle das Abas e Lógica de Dados -->
     <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
-            document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
-
-            document.getElementById('tab-' + tabName).classList.add('active');
-            
-            if(tabName === 'fluxo') {
-                document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
-            } else {
-                document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
-            }
-        }
+        const subcategoriasMap = {
+            "Recebimento": ["Honorários Contábeis", "Consultoria Tributária", "Serviços Societários", "Outras Receitas"],
+            "Imposto": ["Simples Nacional (DAS)", "ISS Municipal", "IRPJ / CSLL", "PIS / COFINS", "Outros Tributos"],
+            "Custo Direto": ["Insumos Operacionais", "Serviços de Terceiros Diretos", "Licenciamentos de Sistemas por Cliente", "Outros Custos Diretos"],
+            "Despesa Pessoal": ["Salários e Ordenados", "Pró-Labore", "Encargos Sociais (INSS/FGTS)", "Benefícios (Vale Alimentação/Transporte)"],
+            "Comissao": ["Comissões de Vendas", "Indicações de Clientes", "Bonificações Comerciais"],
+            "Despesa Comercial": ["Marketing e Tráfego Pago", "Ferramentas de Vendas", "Despesas com Prospecção"],
+            "Despesa Administrativa": ["Aluguel e Condomínio", "Energia, Internet e Telefonia", "Material de Escritório", "Serviços Contábeis/Jurídicos Terceirizados"],
+            "Outras Despesas": ["Despesas Financeiras / Bancárias", "Imprevistos e Multas", "Outras Despesas Variáveis"]
+        };
 
         let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
-        document.getElementById('input-data').valueAsDate = new Date();
 
-        function salvarLancamento(event) {
-            event.preventDefault();
-
-            const novoItem = {
-                id: Date.now(),
-                data: document.getElementById('input-data').value,
-                grupo: document.getElementById('input-grupo').value,
-                conta: document.getElementById('input-conta').value,
-                historico: document.getElementById('input-historico').value || '-',
-                valor: parseFloat(document.getElementById('input-valor').value)
-            };
-
-            lancamentos.push(novoItem);
-            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-
-            // Limpa formulário
-            document.getElementById('input-grupo').value = '';
-            document.getElementById('input-conta').value = '';
-            document.getElementById('input-historico').value = '';
-            document.getElementById('input-valor').value = '';
-            document.getElementById('input-data').valueAsDate = new Date();
-
-            atualizarTela();
-            switchTab('fluxo');
-        }
-
-        function excluirLancamento(id) {
-            if (confirm('Deseja realmente excluir este lançamento?')) {
-                lancamentos = lancamentos.filter(item => item.id !== id);
-                localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-                atualizarTela();
-            }
-        }
-
-        function exportarExcel() {
-            const dadosFiltrados = obterLancamentosFiltrados();
-            if (dadosFiltrados.length === 0) {
-                alert('Não há lançamentos no período selecionado para exportar.');
-                return;
-            }
-            const dadosExport = dadosFiltrados.map(item => ({
-                Data: item.data,
-                Grupo: item.grupo,
-                Conta: item.conta,
-                Historico: item.historico,
-                Valor: item.valor
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(dadosExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Lançamentos");
-            XLSX.writeFile(workbook, "amf_fluxo_de_caixa.xlsx");
-        }
-
-        function exportarPDF() {
-            const dadosFiltrados = obterLancamentosFiltrados();
-            if (dadosFiltrados.length === 0) {
-                alert('Não há lançamentos no período selecionado para exportar.');
-                return;
-            }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("AMF - Extrato de Lançamentos", 14, 15);
-            
-            const colunas = ["Data", "Grupo", "Conta", "Histórico", "Valor"];
-            const linhas = dadosFiltrados.map(item => [
-                item.data,
-                item.grupo,
-                item.conta,
-                item.historico,
-                formatarMoeda(item.valor)
-            ]);
-
-            doc.autoTable({
-                head: [colunas],
-                body: linhas,
-                startY: 25,
-            });
-            doc.save("amf_fluxo_de_caixa.pdf");
-        }
+        document.getElementById('data').valueAsDate = new Date();
+        atualizarSubcategorias();
+        renderizar();
 
         function formatarMoeda(valor) {
-            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        function obterLancamentosFiltrados() {
-            const anoFiltro = document.getElementById('filtroAno').value;
-            const mesFiltro = document.getElementById('filtroMes').value;
-            const semanaFiltro = document.getElementById('filtroSemana').value;
-
-            return lancamentos.filter(item => {
-                // item.data formato yyyy-mm-dd
-                const partes = item.data.split('-');
-                if (partes.length !== 3) return false;
-                
-                const ano = partes[0];
-                const mes = partes[1];
-                const dia = parseInt(partes[2], 10);
-
-                if (anoFiltro && ano !== anoFiltro) return false;
-                if (mesFiltro && mes !== mesFiltro) return false;
-
-                if (semanaFiltro) {
-                    let semanaItem = 4;
-                    if (dia >= 1 && dia <= 7) semanaItem = 1;
-                    else if (dia >= 8 && dia <= 14) semanaItem = 2;
-                    else if (dia >= 15 && dia <= 21) semanaItem = 3;
-
-                    if (semanaItem.toString() !== semanaFiltro) return false;
-                }
-
-                return true;
+        function atualizarSubcategorias() {
+            const tipoSelect = document.getElementById('tipo').value;
+            const subcatSelect = document.getElementById('subcategoria');
+            subcatSelect.innerHTML = '';
+            subcategoriasMap[tipoSelect].forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub;
+                option.textContent = sub;
+                subcatSelect.appendChild(option);
             });
         }
 
-        function atualizarTela() {
-            const filtrados = obterLancamentosFiltrados();
-
-            let totais = {
-                Recebimento: 0,
-                Impostos: 0,
-                Custos: 0,
-                Pessoal: 0,
-                Comissões: 0,
-                'Despesas Fixas': 0,
-                'Despesas Variáveis': 0
+        document.getElementById('formLancamento').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const novo = {
+                id: Date.now(),
+                tipo: document.getElementById('tipo').value,
+                subcategoria: document.getElementById('subcategoria').value,
+                descricao: document.getElementById('descricao').value,
+                valor: parseFloat(document.getElementById('valor').value),
+                data: document.getElementById('data').value
             };
+            lancamentos.push(novo);
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            renderizar();
+            this.reset();
+            document.getElementById('data').valueAsDate = new Date();
+            atualizarSubcategorias();
+        });
 
-            filtrados.forEach(item => {
-                if (totais[item.grupo] !== undefined) {
-                    totais[item.grupo] += item.valor;
-                }
-            });
+        function excluirLancamento(id) {
+            lancamentos = lancamentos.filter(l => l.id !== id);
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            renderizar();
+        }
 
-            let margemContribuicao = totais.Recebimento - (totais.Impostos + totais.Custos + totais.Pessoal + totais.Comissões);
-            let totalDespesas = totais['Despesas Fixas'] + totais['Despesas Variáveis'];
-            let lucroOperacional = margemContribuicao - totalDespesas;
+        function limparDados() {
+            if(confirm("Deseja realmente apagar todos os lançamentos?")) {
+                lancamentos = [];
+                localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+                renderizar();
+            }
+        }
 
-            document.getElementById('dre-receita').innerText = formatarMoeda(totais.Recebimento);
-            document.getElementById('dre-impostos').innerText = formatarMoeda(totais.Impostos);
-            document.getElementById('dre-custos').innerText = formatarMoeda(totais.Custos);
-            document.getElementById('dre-pessoal').innerText = formatarMoeda(totais.Pessoal);
-            document.getElementById('dre-comissoes').innerText = formatarMoeda(totais.Comissões);
-            document.getElementById('dre-margem').innerText = formatarMoeda(margemContribuicao);
-            document.getElementById('dre-despesas').innerText = formatarMoeda(totalDespesas);
-            document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
+        function renderizar() {
+            const tbody = document.getElementById('tabelaLancamentos');
+            tbody.innerHTML = '';
 
-            // Atualiza Tabela de Lançamentos na tela 1
-            const corpoTabela = document.getElementById('tabela-lancamentos-corpo');
-            corpoTabela.innerHTML = '';
+            let receitas = 0, impostos = 0, custoDireto = 0, despesaPessoal = 0, comissoes = 0, despComercial = 0, despAdm = 0, outrasDespesas = 0;
 
-            if (filtrados.length === 0) {
-                corpoTabela.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>`;
-                return;
+            if (lancamentos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhum lançamento cadastrado ainda.</td></tr>`;
             }
 
-            filtrados.forEach(item => {
+            const listaOrdenada = [...lancamentos].sort((a,b) => new Date(b.data) - new Date(a.data));
+
+            listaOrdenada.forEach(l => {
+                if (l.tipo === 'Recebimento') receitas += l.valor;
+                else if (l.tipo === 'Imposto') impostos += l.valor;
+                else if (l.tipo === 'Custo Direto') custoDireto += l.valor;
+                else if (l.tipo === 'Despesa Pessoal') despesaPessoal += l.valor;
+                else if (l.tipo === 'Comissao') comissoes += l.valor;
+                else if (l.tipo === 'Despesa Comercial') despComercial += l.valor;
+                else if (l.tipo === 'Despesa Administrativa') despAdm += l.valor;
+                else if (l.tipo === 'Outras Despesas') outrasDespesas += l.valor;
+
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 border-b border-gray-100 transition-colors";
+                tr.className = "hover:bg-slate-50 transition-colors";
                 
-                const [ano, mes, dia] = item.data.split('-');
-                const dataFormatada = `${dia}/${mes}/${ano}`;
-                const corValor = item.grupo === 'Recebimento' ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+                const corValor = l.tipo === 'Recebimento' ? 'text-emerald-600 font-medium' : 'text-slate-700';
+                const sinal = l.tipo === 'Recebimento' ? '+' : '-';
 
                 tr.innerHTML = `
-                    <td class="p-3.5">${dataFormatada}</td>
-                    <td class="p-3.5"><span class="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-md font-medium">${item.grupo}</span></td>
-                    <td class="p-3.5 font-medium text-slate-800">${item.conta}</td>
-                    <td class="p-3.5 text-gray-500">${item.historico}</td>
-                    <td class="p-3.5 text-right ${corValor}">${formatarMoeda(item.valor)}</td>
-                    <td class="p-3.5 text-center">
-                        <button onclick="excluirLancamento(${item.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded transition" title="Excluir">
-                            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
+                    <td class="py-3 px-3 text-slate-600">${new Date(l.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td class="py-3 px-3 text-slate-800 font-medium">${l.tipo}</td>
+                    <td class="py-3 px-3 text-slate-600">${l.subcategoria}</td>
+                    <td class="py-3 px-3 text-slate-600">${l.descricao}</td>
+                    <td class="py-3 px-3 text-right ${corValor}">${sinal} ${formatarMoeda(l.valor)}</td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="excluirLancamento(${l.id})" class="text-rose-500 hover:text-rose-700 text-xs font-medium">Excluir</button>
                     </td>
                 `;
-                corpoTabela.appendChild(tr);
+                tbody.appendChild(tr);
             });
-        }
 
-        // Inicializa a tela ao carregar a página
-        atualizarTela();
+            const margem = receitas - (impostos + custoDireto + despesaPessoal + comissoes);
+            const lucro = margem - (despComercial + despAdm + outrasDespesas);
+
+            document.getElementById('cardMargem').textContent = formatarMoeda(margem);
+            const elLucro = document.getElementById('cardLucro');
+            elLucro.textContent = formatarMoeda(lucro);
+            elLucro.className = `text-2xl font-bold mt-1 ${lucro >= 0 ? 'text-blue-600' : 'text-rose-600'}`;
+        }
     </script>
 </body>
 </html>
