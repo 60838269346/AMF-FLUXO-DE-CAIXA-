@@ -57,7 +57,7 @@
     </header>
 
     <!-- Conteúdo Principal -->
-    <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
         <!-- ================= TELA 1: DEMONSTRATIVO & FLUXO ================= -->
         <section id="tab-fluxo" class="tab-content active space-y-4">
@@ -161,13 +161,21 @@
 
         <!-- ================= TELA 2: ÁREA DE LANÇAMENTOS ================= -->
         <section id="tab-lancamentos" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-900">Área de Lançamentos</h2>
-                <p class="text-sm text-gray-500 mt-1">Registre novas entradas ou saídas por período semanal para atualizar o fluxo de caixa</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Área de Lançamentos</h2>
+                    <p class="text-sm text-gray-500 mt-1">Registre, filtre, edite ou exclua entradas e saídas</p>
+                </div>
+                <div id="modo-edicao-aviso" class="hidden bg-amber-100 text-amber-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2">
+                    <span>Editando Lançamento...</span>
+                    <button onclick="cancelarEdicaoLancamento()" class="text-amber-900 underline hover:text-black">Cancelar</button>
+                </div>
             </div>
 
+            <!-- Formulário de Cadastro / Edição -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <form id="form-lancamento" onsubmit="salvarLancamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <input type="hidden" id="edit-lancamento-id" value="">
                     
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ano</label>
@@ -233,26 +241,77 @@
                     </div>
 
                     <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
+                        <button type="submit" id="btn-salvar-lancamento" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
                             Adicionar Lançamento
                         </button>
                     </div>
-
                 </form>
+            </div>
+
+            <!-- Tabela de Lançamentos com Filtro Integrado -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <h3 class="font-semibold text-sm text-slate-800">Lançamentos Registrados</h3>
+                    <!-- Filtros Rápidos na Tabela -->
+                    <div class="flex items-center gap-2 text-xs">
+                        <select id="tabela-filtro-ano" onchange="renderizarTabelaLancamentos()" class="bg-white border border-gray-300 rounded px-2 py-1">
+                            <option value="">Ano (Todos)</option>
+                            <option value="2027">2027</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <select id="tabela-filtro-mes" onchange="renderizarTabelaLancamentos()" class="bg-white border border-gray-300 rounded px-2 py-1">
+                            <option value="">Mês (Todos)</option>
+                            <option value="01">Jan</option><option value="02">Fev</option><option value="03">Mar</option>
+                            <option value="04">Abr</option><option value="05">Mai</option><option value="06">Jun</option>
+                            <option value="07">Jul</option><option value="08">Ago</option><option value="09">Set</option>
+                            <option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
+                        </select>
+                        <select id="tabela-filtro-semana" onchange="renderizarTabelaLancamentos()" class="bg-white border border-gray-300 rounded px-2 py-1">
+                            <option value="">Semana (Todas)</option>
+                            <option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-[11px]">
+                                <th class="py-3 px-4">Período</th>
+                                <th class="py-3 px-4">Grupo Sintético</th>
+                                <th class="py-3 px-4">Conta Analítica</th>
+                                <th class="py-3 px-4">Histórico</th>
+                                <th class="py-3 px-4">Valor</th>
+                                <th class="py-3 px-4 text-center">Ações (Senha: 0)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-lancamentos-corpo" class="divide-y divide-gray-100 text-gray-700">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
 
         <!-- ================= TELA 3: CADASTRO DE CONTAS ANALÍTICAS ================= -->
         <section id="tab-contas" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-900">Cadastro de Contas Analíticas</h2>
-                <p class="text-sm text-gray-500 mt-1">Cadastre suas contas operacionais e vincule-as ao respectivo Grupo Sintético do Fluxo de Caixa</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Cadastro de Contas Analíticas</h2>
+                    <p class="text-sm text-gray-500 mt-1">Cadastre, edite ou exclua contas vinculadas aos Grupos Sintéticos</p>
+                </div>
+                <div id="modo-edicao-conta-aviso" class="hidden bg-amber-100 text-amber-800 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2">
+                    <span>Editando Conta...</span>
+                    <button onclick="cancelarEdicaoConta()" class="text-amber-900 underline hover:text-black">Cancelar</button>
+                </div>
             </div>
 
-            <!-- Formulário de Nova Conta -->
+            <!-- Formulário de Nova Conta / Edição -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <form id="form-conta" onsubmit="salvarContaAnalitica(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                    <input type="hidden" id="edit-conta-id" value="">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome da Conta Analítica</label>
                         <input type="text" id="nova-conta-nome" placeholder="Ex: Pró-labore, Aluguel..." required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -273,7 +332,7 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
+                        <button type="submit" id="btn-salvar-conta" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
                             Cadastrar Conta
                         </button>
                     </div>
@@ -291,7 +350,7 @@
                             <tr class="bg-gray-100 text-gray-600 uppercase text-[11px]">
                                 <th class="py-3 px-4">Conta Analítica</th>
                                 <th class="py-3 px-4">Grupo Sintético (Alimenta)</th>
-                                <th class="py-3 px-4 text-center">Ações</th>
+                                <th class="py-3 px-4 text-center">Ações (Senha: 0)</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-contas-corpo" class="divide-y divide-gray-100 text-gray-700">
@@ -309,7 +368,7 @@
         AMF Sistema Financeiro &bull; Todos os direitos reservados
     </footer>
 
-    <!-- Script de Controle das Abas e Lógica de Dados -->
+    <!-- Script de Controle, Senha, Filtros e CRUD Completo -->
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -323,12 +382,25 @@
                 document.getElementById('btn-fluxo').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
             } else if(tabName === 'lancamentos') {
                 document.getElementById('btn-lancamentos').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
+                renderizarTabelaLancamentos();
             } else {
                 document.getElementById('btn-contas').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
             }
         }
 
-        // Banco de Dados Local (com contas padrão iniciais caso esteja vazio)
+        // Validação de Senha (Exigida como 0)
+        function solicitarSenha() {
+            const senha = prompt("Digite a senha de autorização (Senha padrão: 0):");
+            if (senha === null) return false; // Cancelou
+            if (senha.trim() === "0") {
+                return true;
+            } else {
+                alert("Senha incorreta! Operação cancelada.");
+                return false;
+            }
+        }
+
+        // Banco de Dados Local
         let contasAnaliticas = JSON.parse(localStorage.getItem('amf_contas')) || [
             { id: 1, nome: 'Vendas Online', grupo: 'Recebimento' },
             { id: 2, nome: 'Prestação de Serviços', grupo: 'Recebimento' },
@@ -348,10 +420,7 @@
         function carregarSelectContas() {
             const select = document.getElementById('input-conta');
             select.innerHTML = '<option value="">Selecione a Conta...</option>';
-            
-            // Ordena alfabeticamente
             contasAnaliticas.sort((a, b) => a.nome.localeCompare(b.nome));
-
             contasAnaliticas.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.nome;
@@ -364,7 +433,6 @@
         function selecionarContaAnalitica(selectElement) {
             const selectedOption = selectElement.options[selectElement.selectedIndex];
             const grupoInput = document.getElementById('input-grupo');
-            
             if (selectedOption && selectedOption.getAttribute('data-grupo')) {
                 grupoInput.value = selectedOption.getAttribute('data-grupo');
             } else {
@@ -374,89 +442,204 @@
 
         function salvarContaAnalitica(event) {
             event.preventDefault();
+            const editId = document.getElementById('edit-conta-id').value;
             const nome = document.getElementById('nova-conta-nome').value.trim();
             const grupo = document.getElementById('nova-conta-grupo').value;
 
-            // Verifica se já existe
-            if (contasAnaliticas.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
-                alert('Já existe uma conta cadastrada com este nome.');
-                return;
+            if (editId) {
+                // Modo Edição
+                if (!solicitarSenha()) return;
+                const index = contasAnaliticas.findIndex(c => c.id == editId);
+                if (index !== -1) {
+                    contasAnaliticas[index].nome = nome;
+                    contasAnaliticas[index].grupo = grupo;
+                }
+                cancelarEdicaoConta();
+                alert('Conta atualizada com sucesso!');
+            } else {
+                // Modo Cadastro
+                if (contasAnaliticas.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+                    alert('Já existe uma conta cadastrada com este nome.');
+                    return;
+                }
+                contasAnaliticas.push({ id: Date.now(), nome, grupo });
+                document.getElementById('nova-conta-nome').value = '';
+                document.getElementById('nova-conta-grupo').value = '';
+                alert('Conta analítica cadastrada com sucesso!');
             }
 
-            contasAnaliticas.push({ id: Date.now(), nome, grupo });
             localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
-
-            document.getElementById('nova-conta-nome').value = '';
-            document.getElementById('nova-conta-grupo').value = '';
-
             atualizarTabelaContas();
             carregarSelectContas();
-            alert('Conta analítica cadastrada com sucesso!');
+            atualizarTela();
+        }
+
+        function editarConta(id) {
+            if (!solicitarSenha()) return;
+            const conta = contasAnaliticas.find(c => c.id == id);
+            if (!conta) return;
+
+            document.getElementById('edit-conta-id').value = conta.id;
+            document.getElementById('nova-conta-nome').value = conta.nome;
+            document.getElementById('nova-conta-grupo').value = conta.grupo;
+            document.getElementById('btn-salvar-conta').innerText = 'Salvar Alterações';
+            document.getElementById('modo-edicao-conta-aviso').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicaoConta() {
+            document.getElementById('edit-conta-id').value = '';
+            document.getElementById('nova-conta-nome').value = '';
+            document.getElementById('nova-conta-grupo').value = '';
+            document.getElementById('btn-salvar-conta').innerText = 'Cadastrar Conta';
+            document.getElementById('modo-edicao-conta-aviso').classList.add('hidden');
         }
 
         function excluirContaAnalitica(id) {
-            if (confirm('Deseja realmente excluir esta conta analítica?')) {
-                contasAnaliticas = contasAnaliticas.filter(c => c.id !== id);
-                localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
-                atualizarTabelaContas();
-                carregarSelectContas();
-            }
+            if (!solicitarSenha()) return;
+            contasAnaliticas = contasAnaliticas.filter(c => c.id !== id);
+            localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+            atualizarTabelaContas();
+            carregarSelectContas();
+            atualizarTela();
+            alert('Conta excluída com sucesso!');
         }
 
         function atualizarTabelaContas() {
             const tbody = document.getElementById('tabela-contas-corpo');
             tbody.innerHTML = '';
-
             if (contasAnaliticas.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">Nenhuma conta cadastrada.</td></tr>`;
                 return;
             }
-
             contasAnaliticas.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 tr.innerHTML = `
                     <td class="py-3 px-4 font-medium text-slate-800">${c.nome}</td>
                     <td class="py-3 px-4"><span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[11px] font-semibold">${c.grupo}</span></td>
-                    <td class="py-3 px-4 text-center">
-                        <button onclick="excluirContaAnalitica(${c.id})" class="text-rose-600 hover:text-rose-800 font-medium text-xs px-2 py-1 bg-rose-50 rounded hover:bg-rose-100 transition">Excluir</button>
+                    <td class="py-3 px-4 text-center space-x-2">
+                        <button onclick="editarConta(${c.id})" class="text-blue-600 hover:text-blue-800 font-medium text-xs px-2.5 py-1 bg-blue-50 rounded hover:bg-blue-100 transition">Editar</button>
+                        <button onclick="excluirContaAnalitica(${c.id})" class="text-rose-600 hover:text-rose-800 font-medium text-xs px-2.5 py-1 bg-rose-50 rounded hover:bg-rose-100 transition">Excluir</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Funções de Lançamento
+        // Funções de Lançamento (Com Senha e Edição)
         function salvarLancamento(event) {
             event.preventDefault();
+            const editId = document.getElementById('edit-lancamento-id').value;
 
             const contaNome = document.getElementById('input-conta').value;
             const grupoSintetico = document.getElementById('input-grupo').value;
+            const ano = document.getElementById('input-ano').value;
+            const mes = document.getElementById('input-mes').value;
+            const semana = document.getElementById('input-semana').value;
+            const historico = document.getElementById('input-historico').value || '-';
+            const valor = parseFloat(document.getElementById('input-valor').value);
 
-            const novoItem = {
-                id: Date.now(),
-                ano: document.getElementById('input-ano').value,
-                mes: document.getElementById('input-mes').value,
-                semana: document.getElementById('input-semana').value,
-                grupo: grupoSintetico,
-                conta: contaNome,
-                historico: document.getElementById('input-historico').value || '-',
-                valor: parseFloat(document.getElementById('input-valor').value)
-            };
+            if (editId) {
+                if (!solicitarSenha()) return;
+                const index = lancamentos.findIndex(item => item.id == editId);
+                if (index !== -1) {
+                    lancamentos[index] = { id: Number(editId), ano, mes, semana, grupo: grupoSintetico, conta: contaNome, historico, valor };
+                }
+                cancelarEdicaoLancamento();
+                alert('Lançamento atualizado com sucesso!');
+            } else {
+                const novoItem = { id: Date.now(), ano, mes, semana, grupo: grupoSintetico, conta: contaNome, historico, valor };
+                lancamentos.push(novoItem);
+                alert('Lançamento adicionado com sucesso!');
+            }
 
-            lancamentos.push(novoItem);
             localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            limparFormularioLancamento();
+            atualizarTela();
+            renderizarTabelaLancamentos();
+        }
 
-            // Limpa formulário (mantém ano selecionado)
+        function editarLancamento(id) {
+            if (!solicitarSenha()) return;
+            const item = lancamentos.find(l => l.id == id);
+            if (!item) return;
+
+            document.getElementById('edit-lancamento-id').value = item.id;
+            document.getElementById('input-ano').value = item.ano;
+            document.getElementById('input-mes').value = item.mes;
+            document.getElementById('input-semana').value = item.semana;
+            document.getElementById('input-conta').value = item.conta;
+            document.getElementById('input-grupo').value = item.grupo;
+            document.getElementById('input-historico').value = item.historico;
+            document.getElementById('input-valor').value = item.valor;
+
+            document.getElementById('btn-salvar-lancamento').innerText = 'Salvar Alterações';
+            document.getElementById('modo-edicao-aviso').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicaoLancamento() {
+            limparFormularioLancamento();
+            document.getElementById('edit-lancamento-id').value = '';
+            document.getElementById('btn-salvar-lancamento').innerText = 'Adicionar Lançamento';
+            document.getElementById('modo-edicao-aviso').classList.add('hidden');
+        }
+
+        function limparFormularioLancamento() {
             document.getElementById('input-mes').value = '';
             document.getElementById('input-semana').value = '';
             document.getElementById('input-conta').value = '';
             document.getElementById('input-grupo').value = '';
             document.getElementById('input-historico').value = '';
             document.getElementById('input-valor').value = '';
+        }
 
+        function excluirLancamento(id) {
+            if (!solicitarSenha()) return;
+            lancamentos = lancamentos.filter(l => l.id !== id);
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
             atualizarTela();
-            switchTab('fluxo');
+            renderizarTabelaLancamentos();
+            alert('Lançamento excluído com sucesso!');
+        }
+
+        function renderizarTabelaLancamentos() {
+            const tbody = document.getElementById('tabela-lancamentos-corpo');
+            tbody.innerHTML = '';
+
+            const anoF = document.getElementById('tabela-filtro-ano').value;
+            const mesF = document.getElementById('tabela-filtro-mes').value;
+            const semF = document.getElementById('tabela-filtro-semana').value;
+
+            const filtrados = lancamentos.filter(item => {
+                if (anoF && item.ano !== anoF) return false;
+                if (mesF && item.mes !== mesF) return false;
+                if (semF && item.semana !== semF) return false;
+                return true;
+            });
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-400">Nenhum lançamento encontrado com os filtros selecionados.</td></tr>`;
+                return;
+            }
+
+            filtrados.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-slate-800">${item.ano}/${item.mes} - Sem ${item.semana}</td>
+                    <td class="py-3 px-4"><span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-semibold text-[11px]">${item.grupo}</span></td>
+                    <td class="py-3 px-4 text-gray-700">${item.conta}</td>
+                    <td class="py-3 px-4 text-gray-500">${item.historico}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${formatarMoeda(item.valor)}</td>
+                    <td class="py-3 px-4 text-center space-x-2">
+                        <button onclick="editarLancamento(${item.id})" class="text-blue-600 hover:text-blue-800 font-medium text-xs px-2.5 py-1 bg-blue-50 rounded hover:bg-blue-100 transition">Editar</button>
+                        <button onclick="excluirLancamento(${item.id})" class="text-rose-600 hover:text-rose-800 font-medium text-xs px-2.5 py-1 bg-rose-50 rounded hover:bg-rose-100 transition">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function limparFiltros() {
@@ -523,9 +706,8 @@
             const mesFiltro = document.getElementById('filtro-mes').value;
             const semanaFiltro = document.getElementById('filtro-semana').value;
 
-            // Filtra os lançamentos de acordo com os selects (Ano, Mês e Semana)
             const lancamentosFiltrados = lancamentos.filter(item => {
-                if (anoFiltro && item.ano !== anoFicticio && item.ano !== anoFiltro) return false; // verificação segura
+                if (anoFiltro && item.ano !== anoFiltro) return false;
                 if (mesFiltro && item.mes !== mesFiltro) return false;
                 if (semanaFiltro && item.semana !== semanaFiltro) return false;
                 return true;
@@ -561,7 +743,7 @@
             document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
         }
 
-        // Inicialização ao carregar a página
+        // Inicialização
         carregarSelectContas();
         atualizarTabelaContas();
         atualizarTela();
