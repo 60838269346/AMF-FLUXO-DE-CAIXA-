@@ -286,4 +286,118 @@
             const tbody = document.getElementById('tabela-extrato');
             tbody.innerHTML = '';
 
-            if (lancamentos.length ===
+            if (lancamentos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhum lançamento cadastrado ainda.</td></tr>';
+                document.getElementById('card-margem').innerText = formatarMoeda(0);
+                document.getElementById('card-lucro').innerText = formatarMoeda(0);
+                document.getElementById('dre-receita').innerText = formatarMoeda(0);
+                document.getElementById('dre-impostos').innerText = formatarMoeda(0);
+                document.getElementById('dre-custos').innerText = formatarMoeda(0);
+                document.getElementById('dre-pessoal').innerText = formatarMoeda(0);
+                document.getElementById('dre-comissoes').innerText = formatarMoeda(0);
+                document.getElementById('dre-margem').innerText = formatarMoeda(0);
+                document.getElementById('dre-despesas').innerText = formatarMoeda(0);
+                document.getElementById('dre-lucro').innerText = formatarMoeda(0);
+                return;
+            }
+
+            let totais = {
+                Recebimento: 0,
+                Impostos: 0,
+                Custos: 0,
+                Pessoal: 0,
+                Comissões: 0,
+                'Despesas Fixas': 0,
+                'Despesas Variáveis': 0
+            };
+
+            lancamentos.forEach(item => {
+                if (totalis[item.grupo] !== undefined) {
+                    totalis[item.grupo] += item.valor;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                
+                let corValor = item.grupo === 'Recebimento' ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+                let sinalValor = item.grupo === 'Recebimento' ? '+' : '-';
+
+                tr.innerHTML = `
+                    <td class="p-4 text-gray-600">${item.data.split('-').reverse().join('/')}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">${item.grupo}</span></td>
+                    <td class="p-4 font-medium text-slate-800">${item.conta}</td>
+                    <td class="p-4 text-gray-500">${item.historico}</td>
+                    <td class="p-4 ${corValor}">${sinalValor} ${formatarMoeda(item.valor)}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="excluirLancamento(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-medium px-2 py-1 rounded transition-colors">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            let margemContribuicao = totais.Recebimento - (totalis.Impostos + totais.Custos + totais.Pessoal + totais.Comissões);
+            let totalDespesas = totais['Despesas Fixas'] + totais['Despesas Variáveis'];
+            let lucroOperacional = margemContribuicao - totalDespesas;
+
+            document.getElementById('card-margem').innerText = formatarMoeda(margemContribuicao);
+            document.getElementById('card-lucro').innerText = formatarMoeda(lucroOperacional);
+
+            document.getElementById('dre-receita').innerText = formatarMoeda(totalis.Recebimento);
+            document.getElementById('dre-impostos').innerText = formatarMoeda(totalis.Impostos);
+            document.getElementById('dre-custos').innerText = formatarMoeda(totalis.Custos);
+            document.getElementById('dre-pessoal').innerText = formatarMoeda(totalis.Pessoal);
+            document.getElementById('dre-comissoes').innerText = formatarMoeda(totalis.Comissões);
+            document.getElementById('dre-margem').innerText = formatarMoeda(margemContribuicao);
+            document.getElementById('dre-despesas').innerText = formatarMoeda(totalDespesas);
+            document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
+        }
+
+        function exportarExcel() {
+            if (lancamentos.length === 0) {
+                alert('Não há lançamentos para exportar.');
+                return;
+            }
+            const dadosExport = lancamentos.map(item => ({
+                Data: item.data,
+                Grupo: item.grupo,
+                Conta: item.conta,
+                Historico: item.historico,
+                Valor: item.valor
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dadosExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Lançamentos");
+            XLSX.writeFile(workbook, "amf_fluxo_de_caixa.xlsx");
+        }
+
+        function exportarPDF() {
+            if (lancamentos.length === 0) {
+                alert('Não há lançamentos para exportar.');
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("AMF - Extrato de Lançamentos", 14, 15);
+            
+            const colunas = ["Data", "Grupo", "Conta", "Histórico", "Valor"];
+            const linhas = lancamentos.map(item => [
+                item.data,
+                item.grupo,
+                item.conta,
+                item.historico,
+                formatarMoeda(item.valor)
+            ]);
+
+            doc.autoTable({
+                head: [colunas],
+                body: linhas,
+                startY: 25,
+            });
+            doc.save("amf_fluxo_de_caixa.pdf");
+        }
+
+        // Inicializa a tela ao carregar a página
+        atualizarTela();
+    </script>
+</body>
+</html>
