@@ -58,37 +58,15 @@
 
         <!-- ================= TELA 1: DEMONSTRATIVO & FLUXO ================= -->
         <section id="tab-fluxo" class="tab-content active space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Demonstrativo & Fluxo de Caixa</h2>
-                    <p class="text-sm text-gray-500 mt-1">Estrutura gerencial com Margem de Contribuição e Lucro Operacional</p>
-                </div>
-                <button onclick="switchTab('lancamentos')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2">
-                    <span>+ Novo Lançamento</span>
-                </button>
-            </div>
-
-            <!-- Cards de Indicadores Principais -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Margem de Contribuição -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">(=) Margem de Contribuição</p>
-                    <p id="card-margem" class="text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</p>
-                    <p class="text-xs text-gray-400 mt-1">Recebimentos - (Impostos + Custos + Pessoal + Comissões)</p>
-                </div>
-
-                <!-- Lucro Operacional -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">(=) Lucro Operacional Líquido</p>
-                    <p id="card-lucro" class="text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</p>
-                    <p class="text-xs text-gray-400 mt-1">Margem de Contribuição - Despesas Fixas e Variáveis</p>
-                </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Demonstrativo & Fluxo de Caixa</h2>
+                <p class="text-sm text-gray-500 mt-1">Acompanhamento dos resultados consolidados da empresa</p>
             </div>
 
             <!-- Estrutura do Demonstrativo (DRE Gerencial Detalhada) -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-semibold text-lg text-slate-800">Demonstrativo de Resultado Sintético (Estrutural)</h3>
+                    <h3 class="font-semibold text-lg text-slate-800">Fluxo de caixa empresa</h3>
                 </div>
                 <div class="p-6 divide-y divide-gray-100 text-sm">
                     <div class="py-3 flex justify-between items-center">
@@ -123,36 +101,6 @@
                         <span class="font-bold text-blue-900">(=) Lucro Operacional Líquido</span>
                         <span id="dre-lucro" class="font-bold text-blue-900">R$ 0,00</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Extrato Consolidado Analítico -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-semibold text-lg text-slate-800">Extrato de Lançamentos Analítico</h3>
-                    <button onclick="limparTudo()" class="text-xs font-medium text-red-600 hover:text-red-800 transition-colors">
-                        Limpar Tudo
-                    </button>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
-                                <th class="p-4">Data</th>
-                                <th class="p-4">Grupo</th>
-                                <th class="p-4">Conta / Subcategoria</th>
-                                <th class="p-4">Histórico</th>
-                                <th class="p-4">Valor</th>
-                                <th class="p-4 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-extrato" class="divide-y divide-gray-100 text-sm">
-                            <tr>
-                                <td colspan="6" class="p-6 text-center text-gray-400">Nenhum lançamento cadastrado ainda.</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </section>
@@ -264,94 +212,6 @@
             switchTab('fluxo');
         }
 
-        function excluirLancamento(id) {
-            lancamentos = lancamentos.filter(item => item.id !== id);
-            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-            atualizarTela();
-        }
-
-        function limparTudo() {
-            if(confirm('Deseja realmente limpar todos os lançamentos?')) {
-                lancamentos = [];
-                localStorage.removeItem('amf_lancamentos');
-                atualizarTela();
-            }
-        }
-
-        function formatarMoeda(valor) {
-            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function atualizarTela() {
-            const tbody = document.getElementById('tabela-extrato');
-            tbody.innerHTML = '';
-
-            if (lancamentos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhum lançamento cadastrado ainda.</td></tr>';
-                document.getElementById('card-margem').innerText = formatarMoeda(0);
-                document.getElementById('card-lucro').innerText = formatarMoeda(0);
-                document.getElementById('dre-receita').innerText = formatarMoeda(0);
-                document.getElementById('dre-impostos').innerText = formatarMoeda(0);
-                document.getElementById('dre-custos').innerText = formatarMoeda(0);
-                document.getElementById('dre-pessoal').innerText = formatarMoeda(0);
-                document.getElementById('dre-comissoes').innerText = formatarMoeda(0);
-                document.getElementById('dre-margem').innerText = formatarMoeda(0);
-                document.getElementById('dre-despesas').innerText = formatarMoeda(0);
-                document.getElementById('dre-lucro').innerText = formatarMoeda(0);
-                return;
-            }
-
-            let totais = {
-                Recebimento: 0,
-                Impostos: 0,
-                Custos: 0,
-                Pessoal: 0,
-                Comissões: 0,
-                'Despesas Fixas': 0,
-                'Despesas Variáveis': 0
-            };
-
-            lancamentos.forEach(item => {
-                if (totalis[item.grupo] !== undefined) {
-                    totalis[item.grupo] += item.valor;
-                }
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
-                
-                let corValor = item.grupo === 'Recebimento' ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
-                let sinalValor = item.grupo === 'Recebimento' ? '+' : '-';
-
-                tr.innerHTML = `
-                    <td class="p-4 text-gray-600">${item.data.split('-').reverse().join('/')}</td>
-                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">${item.grupo}</span></td>
-                    <td class="p-4 font-medium text-slate-800">${item.conta}</td>
-                    <td class="p-4 text-gray-500">${item.historico}</td>
-                    <td class="p-4 ${corValor}">${sinalValor} ${formatarMoeda(item.valor)}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="excluirLancamento(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-medium px-2 py-1 rounded transition-colors">Excluir</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            let margemContribuicao = totais.Recebimento - (totalis.Impostos + totais.Custos + totais.Pessoal + totais.Comissões);
-            let totalDespesas = totais['Despesas Fixas'] + totais['Despesas Variáveis'];
-            let lucroOperacional = margemContribuicao - totalDespesas;
-
-            document.getElementById('card-margem').innerText = formatarMoeda(margemContribuicao);
-            document.getElementById('card-lucro').innerText = formatarMoeda(lucroOperacional);
-
-            document.getElementById('dre-receita').innerText = formatarMoeda(totalis.Recebimento);
-            document.getElementById('dre-impostos').innerText = formatarMoeda(totalis.Impostos);
-            document.getElementById('dre-custos').innerText = formatarMoeda(totalis.Custos);
-            document.getElementById('dre-pessoal').innerText = formatarMoeda(totalis.Pessoal);
-            document.getElementById('dre-comissoes').innerText = formatarMoeda(totalis.Comissões);
-            document.getElementById('dre-margem').innerText = formatarMoeda(margemContribuicao);
-            document.getElementById('dre-despesas').innerText = formatarMoeda(totalDespesas);
-            document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
-        }
-
         function exportarExcel() {
             if (lancamentos.length === 0) {
                 alert('Não há lançamentos para exportar.');
@@ -394,6 +254,53 @@
                 startY: 25,
             });
             doc.save("amf_fluxo_de_caixa.pdf");
+        }
+
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function atualizarTela() {
+            if (lancamentos.length === 0) {
+                document.getElementById('dre-receita').innerText = formatarMoeda(0);
+                document.getElementById('dre-impostos').innerText = formatarMoeda(0);
+                document.getElementById('dre-custos').innerText = formatarMoeda(0);
+                document.getElementById('dre-pessoal').innerText = formatarMoeda(0);
+                document.getElementById('dre-comissoes').innerText = formatarMoeda(0);
+                document.getElementById('dre-margem').innerText = formatarMoeda(0);
+                document.getElementById('dre-despesas').innerText = formatarMoeda(0);
+                document.getElementById('dre-lucro').innerText = formatarMoeda(0);
+                return;
+            }
+
+            let totais = {
+                Recebimento: 0,
+                Impostos: 0,
+                Custos: 0,
+                Pessoal: 0,
+                Comissões: 0,
+                'Despesas Fixas': 0,
+                'Despesas Variáveis': 0
+            };
+
+            lancamentos.forEach(item => {
+                if (totais[item.grupo] !== undefined) {
+                    totais[item.grupo] += item.valor;
+                }
+            });
+
+            let margemContribuicao = totais.Recebimento - (totais.Impostos + totais.Custos + totais.Pessoal + totais.Comissões);
+            let totalDespesas = totais['Despesas Fixas'] + totais['Despesas Variáveis'];
+            let lucroOperacional = margemContribuicao - totalDespesas;
+
+            document.getElementById('dre-receita').innerText = formatarMoeda(totais.Recebimento);
+            document.getElementById('dre-impostos').innerText = formatarMoeda(totais.Impostos);
+            document.getElementById('dre-custos').innerText = formatarMoeda(totais.Custos);
+            document.getElementById('dre-pessoal').innerText = formatarMoeda(totais.Pessoal);
+            document.getElementById('dre-comissoes').innerText = formatarMoeda(totais.Comissões);
+            document.getElementById('dre-margem').innerText = formatarMoeda(margemContribuicao);
+            document.getElementById('dre-despesas').innerText = formatarMoeda(totalDespesas);
+            document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
         }
 
         // Inicializa a tela ao carregar a página
