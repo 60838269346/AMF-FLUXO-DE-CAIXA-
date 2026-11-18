@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMF - Fluxo de Caixa & DRE Gerencial</title>
+    <title>AMF - Fluxo de Caixa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700&display=swap" rel="stylesheet">
     <style>
@@ -17,13 +17,7 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm tracking-wider shadow-sm">AMF</div>
-                <h1 class="text-xl font-semibold tracking-tight text-slate-900">Fluxo de Caixa & DRE Gerencial</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span id="statusSync" class="text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">Modo Local (Offline)</span>
-                <button onclick="configurarJSONBin()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded border border-slate-300 font-medium transition-colors">
-                    Configurar JSONBin
-                </button>
+                <h1 class="text-xl font-semibold tracking-tight text-slate-900">Fluxo de Caixa</h1>
             </div>
         </div>
     </header>
@@ -137,8 +131,6 @@
         };
 
         let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
-        let jsonbinApiKey = localStorage.getItem('amf_jsonbin_key') || '';
-        let jsonbinBinId = localStorage.getItem('amf_jsonbin_bin') || '';
 
         document.getElementById('data').valueAsDate = new Date();
         atualizarSubcategorias();
@@ -160,66 +152,7 @@
             });
         }
 
-        function configurarJSONBin() {
-            const apiKey = prompt("Insira a sua X-Master-Key do JSONBin.io:", jsonbinApiKey);
-            if (apiKey !== null) {
-                const binId = prompt("Insira o ID do Bin criado:", jsonbinBinId);
-                localStorage.setItem('amf_jsonbin_key', apiKey.trim());
-                jsonbinApiKey = apiKey.trim();
-                if (binId) {
-                    localStorage.setItem('amf_jsonbin_bin', binId.trim());
-                    jsonbinBinId = binId.trim();
-                }
-                alert("Configurações salvas! Sincronizando dados...");
-                sincronizarComNuvem();
-            }
-        }
-
-        async function sincronizarComNuvem() {
-            if (!jsonbinApiKey || !jsonbinBinId) {
-                document.getElementById('statusSync').textContent = "Modo Local (Offline)";
-                return;
-            }
-            document.getElementById('statusSync').textContent = "Sincronizando...";
-            try {
-                const resposta = await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}/latest`, {
-                    headers: { 'X-Master-Key': jsonbinApiKey }
-                });
-                if (resposta.ok) {
-                    const dados = await resposta.json();
-                    if (dados.record && Array.isArray(dados.record.lancamentos)) {
-                        lancamentos = dados.record.lancamentos;
-                        localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-                    }
-                }
-                document.getElementById('statusSync').textContent = "Conectado ao JSONBin ☁️";
-                renderizar();
-            } catch (erro) {
-                console.error(erro);
-                document.getElementById('statusSync').textContent = "Erro na Nuvem (Usando Local)";
-            }
-        }
-
-        async function salvarNaNuven() {
-            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
-            if (!jsonbinApiKey || !jsonbinBinId) return;
-            try {
-                await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': jsonbinApiKey
-                    },
-                    body: JSON.stringify({ lancamentos })
-                });
-                document.getElementById('statusSync').textContent = "Sincronizado na Nuvem ☁️";
-            } catch (erro) {
-                console.error(erro);
-                document.getElementById('statusSync').textContent = "Erro ao salvar na nuvem";
-            }
-        }
-
-        document.getElementById('formLancamento').addEventListener('submit', async function(e) {
+        document.getElementById('formLancamento').addEventListener('submit', function(e) {
             e.preventDefault();
             const novo = {
                 id: Date.now(),
@@ -230,23 +163,23 @@
                 data: document.getElementById('data').value
             };
             lancamentos.push(novo);
-            await salvarNaNuven();
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
             renderizar();
             this.reset();
             document.getElementById('data').valueAsDate = new Date();
             atualizarSubcategorias();
         });
 
-        async function excluirLancamento(id) {
+        function excluirLancamento(id) {
             lancamentos = lancamentos.filter(l => l.id !== id);
-            await salvarNaNuven();
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
             renderizar();
         }
 
-        async function limparDados() {
+        function limparDados() {
             if(confirm("Deseja realmente apagar todos os lançamentos?")) {
                 lancamentos = [];
-                await salvarNaNuven();
+                localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
                 renderizar();
             }
         }
