@@ -42,11 +42,14 @@
 
                 <!-- Menu de Navegação por Abas -->
                 <nav class="flex gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                    <button onclick="switchTab('fluxo')" id="btn-fluxo" class="px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow">
+                    <button onclick="switchTab('fluxo')" id="btn-fluxo" class="px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow">
                         1. Demonstrativo & Fluxo
                     </button>
-                    <button onclick="switchTab('lancamentos')" id="btn-lancamentos" class="px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700">
-                        2. Área de Lançamentos
+                    <button onclick="switchTab('lancamentos')" id="btn-lancamentos" class="px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+                        2. Lançamentos
+                    </button>
+                    <button onclick="switchTab('contas')" id="btn-contas" class="px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+                        3. Cadastro de Contas
                     </button>
                 </nav>
             </div>
@@ -65,7 +68,7 @@
                 </div>
             </div>
 
-            <!-- FILTROS DE ANO, MÊS E SEMANA (CAIXINHA COMPACTA E DISCRETA) -->
+            <!-- FILTROS DE ANO, MÊS E SEMANA -->
             <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
                     <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Ano</label>
@@ -113,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- Estrutura do Demonstrativo (DRE Gerencial Detalhada Menor e Proporcional) -->
+            <!-- Estrutura do Demonstrativo (DRE Gerencial) -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
                     <h3 class="font-semibold text-sm text-slate-800">Fluxo de caixa empresa</h3>
@@ -208,22 +211,15 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grupo / Tipo</label>
-                        <select id="input-grupo" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">Selecione o Grupo...</option>
-                            <option value="Recebimento">Recebimento</option>
-                            <option value="Impostos">Impostos</option>
-                            <option value="Custos">Custos</option>
-                            <option value="Pessoal">Pessoal</option>
-                            <option value="Comissões">Comissões</option>
-                            <option value="Despesas Fixas">Despesas Fixas</option>
-                            <option value="Despesas Variáveis">Despesas Variáveis</option>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Conta Analítica</label>
+                        <select id="input-conta" onchange="selecionarContaAnalitica(this)" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Selecione a Conta...</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Conta / Subcategoria</label>
-                        <input type="text" id="input-conta" placeholder="Ex: Vendas Online, Aluguel..." required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grupo / Sintética (Automático)</label>
+                        <input type="text" id="input-grupo" readonly placeholder="Preenchido automaticamente..." required class="w-full bg-gray-200 text-gray-700 border border-gray-300 rounded-lg p-2.5 text-sm cursor-not-allowed">
                     </div>
 
                     <div>
@@ -246,6 +242,66 @@
             </div>
         </section>
 
+
+        <!-- ================= TELA 3: CADASTRO DE CONTAS ANALÍTICAS ================= -->
+        <section id="tab-contas" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Cadastro de Contas Analíticas</h2>
+                <p class="text-sm text-gray-500 mt-1">Cadastre suas contas operacionais e vincule-as ao respectivo Grupo Sintético do Fluxo de Caixa</p>
+            </div>
+
+            <!-- Formulário de Nova Conta -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <form id="form-conta" onsubmit="salvarContaAnalitica(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome da Conta Analítica</label>
+                        <input type="text" id="nova-conta-nome" placeholder="Ex: Pró-labore, Aluguel..." required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grupo Sintético (Destino)</label>
+                        <select id="nova-conta-grupo" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Selecione o Grupo...</option>
+                            <option value="Recebimento">Recebimento</option>
+                            <option value="Impostos">Impostos</option>
+                            <option value="Custos">Custos</option>
+                            <option value="Pessoal">Pessoal</option>
+                            <option value="Comissões">Comissões</option>
+                            <option value="Despesas Fixas">Despesas Fixas</option>
+                            <option value="Despesas Variáveis">Despesas Variáveis</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
+                            Cadastrar Conta
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Contas Cadastradas -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-semibold text-sm text-slate-800">Contas Analíticas Cadastradas</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-[11px]">
+                                <th class="py-3 px-4">Conta Analítica</th>
+                                <th class="py-3 px-4">Grupo Sintético (Alimenta)</th>
+                                <th class="py-3 px-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-contas-corpo" class="divide-y divide-gray-100 text-gray-700">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Rodapé -->
@@ -257,30 +313,133 @@
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
-            document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
+            document.getElementById('btn-fluxo').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
+            document.getElementById('btn-lancamentos').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
+            document.getElementById('btn-contas').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
 
             document.getElementById('tab-' + tabName).classList.add('active');
             
             if(tabName === 'fluxo') {
-                document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
+                document.getElementById('btn-fluxo').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
+            } else if(tabName === 'lancamentos') {
+                document.getElementById('btn-lancamentos').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
             } else {
-                document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
+                document.getElementById('btn-contas').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all bg-blue-600 text-white shadow";
             }
         }
 
+        // Banco de Dados Local (com contas padrão iniciais caso esteja vazio)
+        let contasAnaliticas = JSON.parse(localStorage.getItem('amf_contas')) || [
+            { id: 1, nome: 'Vendas Online', grupo: 'Recebimento' },
+            { id: 2, nome: 'Prestação de Serviços', grupo: 'Recebimento' },
+            { id: 3, nome: 'Impostos Federais/Estaduais', grupo: 'Impostos' },
+            { id: 4, nome: 'Mercadorias para Revenda', grupo: 'Custos' },
+            { id: 5, nome: 'Pró-labore', grupo: 'Pessoal' },
+            { id: 6, nome: 'Salários e Encargos', grupo: 'Pessoal' },
+            { id: 7, nome: 'Comissões de Vendas', grupo: 'Comissões' },
+            { id: 8, nome: 'Aluguel do Escritório', grupo: 'Despesas Fixas' },
+            { id: 9, nome: 'Internet e Telefonia', grupo: 'Despesas Fixas' },
+            { id: 10, nome: 'Material de Escritório', grupo: 'Despesas Variáveis' }
+        ];
+
         let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
 
+        // Funções de Gestão de Contas Analíticas
+        function carregarSelectContas() {
+            const select = document.getElementById('input-conta');
+            select.innerHTML = '<option value="">Selecione a Conta...</option>';
+            
+            // Ordena alfabeticamente
+            contasAnaliticas.sort((a, b) => a.nome.localeCompare(b.nome));
+
+            contasAnaliticas.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.nome;
+                opt.setAttribute('data-grupo', c.grupo);
+                opt.innerText = `${c.nome} (${c.grupo})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function selecionarContaAnalitica(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const grupoInput = document.getElementById('input-grupo');
+            
+            if (selectedOption && selectedOption.getAttribute('data-grupo')) {
+                grupoInput.value = selectedOption.getAttribute('data-grupo');
+            } else {
+                grupoInput.value = '';
+            }
+        }
+
+        function salvarContaAnalitica(event) {
+            event.preventDefault();
+            const nome = document.getElementById('nova-conta-nome').value.trim();
+            const grupo = document.getElementById('nova-conta-grupo').value;
+
+            // Verifica se já existe
+            if (contasAnaliticas.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+                alert('Já existe uma conta cadastrada com este nome.');
+                return;
+            }
+
+            contasAnaliticas.push({ id: Date.now(), nome, grupo });
+            localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+
+            document.getElementById('nova-conta-nome').value = '';
+            document.getElementById('nova-conta-grupo').value = '';
+
+            atualizarTabelaContas();
+            carregarSelectContas();
+            alert('Conta analítica cadastrada com sucesso!');
+        }
+
+        function excluirContaAnalitica(id) {
+            if (confirm('Deseja realmente excluir esta conta analítica?')) {
+                contasAnaliticas = contasAnaliticas.filter(c => c.id !== id);
+                localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+                atualizarTabelaContas();
+                carregarSelectContas();
+            }
+        }
+
+        function atualizarTabelaContas() {
+            const tbody = document.getElementById('tabela-contas-corpo');
+            tbody.innerHTML = '';
+
+            if (contasAnaliticas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">Nenhuma conta cadastrada.</td></tr>`;
+                return;
+            }
+
+            contasAnaliticas.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-slate-800">${c.nome}</td>
+                    <td class="py-3 px-4"><span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[11px] font-semibold">${c.grupo}</span></td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="excluirContaAnalitica(${c.id})" class="text-rose-600 hover:text-rose-800 font-medium text-xs px-2 py-1 bg-rose-50 rounded hover:bg-rose-100 transition">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Funções de Lançamento
         function salvarLancamento(event) {
             event.preventDefault();
+
+            const contaNome = document.getElementById('input-conta').value;
+            const grupoSintetico = document.getElementById('input-grupo').value;
 
             const novoItem = {
                 id: Date.now(),
                 ano: document.getElementById('input-ano').value,
                 mes: document.getElementById('input-mes').value,
                 semana: document.getElementById('input-semana').value,
-                grupo: document.getElementById('input-grupo').value,
-                conta: document.getElementById('input-conta').value,
+                grupo: grupoSintetico,
+                conta: contaNome,
                 historico: document.getElementById('input-historico').value || '-',
                 valor: parseFloat(document.getElementById('input-valor').value)
             };
@@ -291,8 +450,8 @@
             // Limpa formulário (mantém ano selecionado)
             document.getElementById('input-mes').value = '';
             document.getElementById('input-semana').value = '';
-            document.getElementById('input-grupo').value = '';
             document.getElementById('input-conta').value = '';
+            document.getElementById('input-grupo').value = '';
             document.getElementById('input-historico').value = '';
             document.getElementById('input-valor').value = '';
 
@@ -402,7 +561,9 @@
             document.getElementById('dre-lucro').innerText = formatarMoeda(lucroOperacional);
         }
 
-        // Inicializa a tela ao carregar a página
+        // Inicialização ao carregar a página
+        carregarSelectContas();
+        atualizarTabelaContas();
         atualizarTela();
     </script>
 </body>
