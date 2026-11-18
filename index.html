@@ -4,179 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMF - Fluxo de Caixa</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS para estilização moderna -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (XLSX) -->
+    <!-- SheetJS (XLSX) para exportar Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF para exportação de PDF -->
+    <!-- jsPDF e autoTable para exportar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
-    <!-- Header -->
+    <!-- Cabeçalho Principal -->
     <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight">AMF - Fluxo de Caixa</h1>
-                <p class="text-xs text-slate-400">Controle Financeiro e Operacional</p>
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm tracking-wider shadow">AMF</span>
+                <h1 class="text-xl font-semibold tracking-wide">Fluxo de Caixa</h1>
             </div>
-            <!-- Botões de Exportação -->
-            <div class="flex items-center gap-2">
-                <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Baixar Excel
-                </button>
-                <button onclick="exportarPDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Baixar PDF
-                </button>
+            
+            <!-- Ações e Menu de Abas -->
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Botões de Exportação -->
+                <div class="flex items-center gap-2">
+                    <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Excel
+                    </button>
+                    <button onclick="exportarPDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        PDF
+                    </button>
+                </div>
+
+                <!-- Menu de Navegação por Abas -->
+                <nav class="flex gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                    <button onclick="switchTab('fluxo')" id="btn-fluxo" class="px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow">
+                        1. Demonstrativo & Fluxo
+                    </button>
+                    <button onclick="switchTab('lancamentos')" id="btn-lancamentos" class="px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+                        2. Área de Lançamentos
+                    </button>
+                </nav>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Coluna Esquerda: Formulário de Lançamento -->
-        <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-1 h-fit">
-            <h2 class="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-gray-100">Novo Lançamento</h2>
-            
-            <form id="formLancamento" onsubmit="adicionarLancamento(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tipo</label>
-                    <select id="tipo" class="w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none">
-                        <option value="Recebimento">Recebimento</option>
-                        <option value="Despesa">Despesa</option>
-                    </select>
-                </div>
+    <!-- Conteúdo Principal -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
 
+        <!-- ================= TELA 1: DEMONSTRATIVO & FLUXO ================= -->
+        <section id="tab-fluxo" class="tab-content active space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Data</label>
-                    <input type="date" id="data" required class="w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                    <h2 class="text-2xl font-bold text-slate-900">Demonstrativo & Fluxo de Caixa</h2>
+                    <p class="text-sm text-gray-500 mt-1">Estrutura gerencial com Margem de Contribuição e Lucro Operacional</p>
                 </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Descrição</label>
-                    <input type="text" id="descricao" placeholder="Ex: Venda de mercadoria, Fornecedor..." required class="w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Valor (R$)</label>
-                    <input type="number" step="0.01" id="valor" placeholder="0,00" required class="w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none">
-                </div>
-
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg text-sm transition shadow-sm">
-                    Salvar Lançamento
+                <button onclick="switchTab('lancamentos')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                    <span>+ Novo Lançamento</span>
                 </button>
-            </form>
-        </section>
+            </div>
 
-        <!-- Coluna Direita: Resumo e Tabela de Registros -->
-        <section class="lg:col-span-2 space-y-6">
-            
-            <!-- Cards de Resumo -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Total Recebimentos</p>
-                    <p id="totalRecebimento" class="text-xl font-bold text-emerald-600 mt-1">R$ 0,00</p>
+            <!-- Cards de Indicadores Principais -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Margem de Contribuição -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">(=) Margem de Contribuição</p>
+                    <p id="card-margem" class="text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</p>
+                    <p class="text-xs text-gray-400 mt-1">Recebimentos - (Impostos + Custos + Pessoal + Comissões)</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Total Despesas</p>
-                    <p id="totalDespesa" class="text-xl font-bold text-rose-600 mt-1">R$ 0,00</p>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Saldo em Caixa</p>
-                    <p id="saldoCaixa" class="text-xl font-bold text-slate-900 mt-1">R$ 0,00</p>
+
+                <!-- Lucro Operacional -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">(=) Lucro Operacional Líquido</p>
+                    <p id="card-lucro" class="text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</p>
+                    <p class="text-xs text-gray-400 mt-1">Margem de Contribuição - Despesas Fixas e Variáveis</p>
                 </div>
             </div>
 
-            <!-- Tabela -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-900">Histórico de Lançamentos</h3>
-                    <span id="contadorRegistros" class="text-xs text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">0 registros</span>
+            <!-- Estrutura do Demonstrativo (DRE Gerencial Detalhada) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="font-semibold text-lg text-slate-800">Demonstrativo de Resultado Sintético (Estrutural)</h3>
+                </div>
+                <div class="p-6 divide-y divide-gray-100 text-sm">
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(+) Recebimentos</span>
+                        <span id="dre-receita" class="font-semibold text-emerald-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(-) Impostos</span>
+                        <span id="dre-impostos" class="font-semibold text-rose-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(-) Custos</span>
+                        <span id="dre-custos" class="font-semibold text-rose-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(-) Pessoal</span>
+                        <span id="dre-pessoal" class="font-semibold text-rose-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(-) Comissões</span>
+                        <span id="dre-comissoes" class="font-semibold text-rose-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3.5 flex justify-between items-center bg-gray-50 px-3 rounded-lg">
+                        <span class="font-bold text-slate-900">(=) Margem de Contribuição</span>
+                        <span id="dre-margem" class="font-bold text-slate-900">R$ 0,00</span>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <span class="font-medium text-gray-700">(-) Despesas Fixas e Variáveis</span>
+                        <span id="dre-despesas" class="font-semibold text-rose-600">R$ 0,00</span>
+                    </div>
+                    <div class="py-3.5 flex justify-between items-center bg-blue-50 px-3 rounded-lg">
+                        <span class="font-bold text-blue-900">(=) Lucro Operacional Líquido</span>
+                        <span id="dre-lucro" class="font-bold text-blue-900">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extrato Consolidado Analítico -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-semibold text-lg text-slate-800">Extrato de Lançamentos Analítico</h3>
+                    <button onclick="limparTudo()" class="text-xs font-medium text-red-600 hover:text-red-800 transition-colors">
+                        Limpar Tudo
+                    </button>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 text-gray-600 uppercase text-[11px] font-semibold border-b border-gray-100">
-                            <tr>
-                                <th class="px-6 py-3">Data</th>
-                                <th class="px-6 py-3">Tipo</th>
-                                <th class="px-6 py-3">Descrição</th>
-                                <th class="px-6 py-3 text-right">Valor</th>
-                                <th class="px-6 py-3 text-center">Ações</th>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
+                                <th class="p-4">Data</th>
+                                <th class="p-4">Grupo</th>
+                                <th class="p-4">Conta / Subcategoria</th>
+                                <th class="p-4">Histórico</th>
+                                <th class="p-4">Valor</th>
+                                <th class="p-4 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaLancamentos" class="divide-y divide-gray-100">
+                        <tbody id="tabela-extrato" class="divide-y divide-gray-100 text-sm">
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-400 text-sm">Nenhum lançamento registrado ainda.</td>
+                                <td colspan="6" class="p-6 text-center text-gray-400">Nenhum lançamento cadastrado ainda.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </section>
 
+
+        <!-- ================= TELA 2: ÁREA DE LANÇAMENTOS ================= -->
+        <section id="tab-lancamentos" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Área de Lançamentos</h2>
+                <p class="text-sm text-gray-500 mt-1">Registre novas entradas ou saídas para atualizar o fluxo de caixa</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <form id="form-lancamento" onsubmit="salvarLancamento(event)" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Data</label>
+                        <input type="date" id="input-data" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Grupo / Tipo</label>
+                        <select id="input-grupo" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="">Selecione o Grupo...</option>
+                            <option value="Recebimento">Recebimento</option>
+                            <option value="Impostos">Impostos</option>
+                            <option value="Custos">Custos</option>
+                            <option value="Pessoal">Pessoal</option>
+                            <option value="Comissões">Comissões</option>
+                            <option value="Despesas Fixas">Despesas Fixas</option>
+                            <option value="Despesas Variáveis">Despesas Variáveis</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Conta / Subcategoria</label>
+                        <input type="text" id="input-conta" placeholder="Ex: Vendas Online, Aluguel..." required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Histórico / Descrição</label>
+                        <input type="text" id="input-historico" placeholder="Detalhes do lançamento..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" id="input-valor" placeholder="0,00" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors shadow-sm">
+                            Adicionar Lançamento
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center py-4 text-xs text-gray-400 border-t border-gray-100 mt-auto">
-        AMF Sistema-DP &copy; 2026 - Todos os direitos reservados.
+    <!-- Rodapé -->
+    <footer class="bg-white border-t border-gray-200 mt-auto py-4 text-center text-xs text-gray-400">
+        AMF Sistema Financeiro &bull; Todos os direitos reservados
     </footer>
 
-    <!-- JavaScript da Aplicação -->
+    <!-- Script de Controle das Abas e Lógica de Dados -->
     <script>
-        // Inicializa data atual no campo de data
-        document.getElementById('data').valueAsDate = new Date();
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
+            document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
 
-        let lancamentos = JSON.parse(localStorage.getItem('amf_fluxo_caixa')) || [];
-
-        function salvarDados() {
-            localStorage.setItem('amf_fluxo_caixa', JSON.stringify(lancamentos));
-            atualizarInterface();
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            if(tabName === 'fluxo') {
+                document.getElementById('btn-fluxo').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
+            } else {
+                document.getElementById('btn-lancamentos').className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-blue-600 text-white shadow";
+            }
         }
 
-        function adicionarLancamento(event) {
+        let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
+        document.getElementById('input-data').valueAsDate = new Date();
+
+        function salvarLancamento(event) {
             event.preventDefault();
 
-            const tipo = document.getElementById('tipo').value;
-            const data = document.getElementById('data').value;
-            const descricao = document.getElementById('descricao').value;
-            const valor = parseFloat(document.getElementById('valor').value);
-
-            if (!data || !descricao || isNaN(valor)) {
-                alert('Por favor, preencha todos os campos corretamente.');
-                return;
-            }
-
-            const novoLancamento = {
+            const novoItem = {
                 id: Date.now(),
-                tipo,
-                data,
-                descricao,
-                valor
+                data: document.getElementById('input-data').value,
+                grupo: document.getElementById('input-grupo').value,
+                conta: document.getElementById('input-conta').value,
+                historico: document.getElementById('input-historico').value || '-',
+                valor: parseFloat(document.getElementById('input-valor').value)
             };
 
-            lancamentos.push(novoLancamento);
-            salvarDados();
+            lancamentos.push(novoItem);
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
 
-            // Limpa formulário mantendo a data atual
-            document.getElementById('descricao').value = '';
-            document.getElementById('valor').value = '';
-            document.getElementById('data').valueAsDate = new Date();
+            // Limpa formulário
+            document.getElementById('input-grupo').value = '';
+            document.getElementById('input-conta').value = '';
+            document.getElementById('input-historico').value = '';
+            document.getElementById('input-valor').value = '';
+            document.getElementById('input-data').valueAsDate = new Date();
+
+            atualizarTela();
+            switchTab('fluxo');
         }
 
         function excluirLancamento(id) {
-            if (confirm('Deseja realmente excluir este lançamento?')) {
-                lancamentos = lancamentos.filter(item => item.id !== id);
-                salvarDados();
+            lancamentos = lancamentos.filter(item => item.id !== id);
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            atualizarTela();
+        }
+
+        function limparTudo() {
+            if(confirm('Deseja realmente limpar todos os lançamentos?')) {
+                lancamentos = [];
+                localStorage.removeItem('amf_lancamentos');
+                atualizarTela();
             }
         }
 
@@ -184,126 +282,8 @@
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        function formatarData(dataISO) {
-            const partes = dataISO.split('-');
-            if (partes.length === 3) {
-                return `${partes[2]}/${partes[1]}/${partes[0]}`;
-            }
-            return dataISO;
-        }
-
-        function atualizarInterface() {
-            const tbody = document.getElementById('tabelaLancamentos');
+        function atualizarTela() {
+            const tbody = document.getElementById('tabela-extrato');
             tbody.innerHTML = '';
 
-            let totalRecebimento = 0;
-            let totalDespesa = 0;
-
-            if (lancamentos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 text-sm">Nenhum lançamento registrado ainda.</td></tr>`;
-            } else {
-                // Ordena por data decrescente
-                const listaOrdenada = [...lancamentos].sort((a, b) => new Date(b.data) - new Date(a.data));
-
-                listaOrdenada.forEach(item => {
-                    if (item.tipo === 'Recebimento') {
-                        totalRecebimento += item.valor;
-                    } else {
-                        totalDespesa += item.valor;
-                    }
-
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50/50 transition';
-                    tr.innerHTML = `
-                        <td class="px-6 py-3.5 text-gray-600">${formatarData(item.data)}</td>
-                        <td class="px-6 py-3.5">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.tipo === 'Recebimento' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
-                                ${item.tipo}
-                            </span>
-                        </td>
-                        <td class="px-6 py-3.5 font-medium text-gray-900">${item.descricao}</td>
-                        <td class="px-6 py-3.5 text-right font-semibold ${item.tipo === 'Recebimento' ? 'text-emerald-600' : 'text-rose-600'}">
-                            ${item.tipo === 'Recebimento' ? '+ ' : '- '}${formatarMoeda(item.valor)}
-                        </td>
-                        <td class="px-6 py-3.5 text-center">
-                            <button onclick="excluirLancamento(${item.id})" class="text-gray-400 hover:text-rose-600 transition" title="Excluir">
-                                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            const saldo = totalRecebimento - totalDespesa;
-
-            document.getElementById('totalRecebimento').innerText = formatarMoeda(totalRecebimento);
-            document.getElementById('totalDespesa').innerText = formatarMoeda(totalDespesa);
-            
-            const elSaldo = document.getElementById('saldoCaixa');
-            elSaldo.innerText = formatarMoeda(saldo);
-            elSaldo.className = `text-xl font-bold mt-1 ${saldo >= 0 ? 'text-slate-900' : 'text-rose-600'}`;
-
-            document.getElementById('contadorRegistros').innerText = `${lancamentos.length} ${lancamentos.length === 1 ? 'registro' : 'registros'}`;
-        }
-
-        // Funções de Exportação
-        function exportarExcel() {
-            if (lancamentos.length === 0) {
-                alert('Não há dados para exportar.');
-                return;
-            }
-
-            const dadosFormatados = lancamentos.map(item => ({
-                Data: formatarData(item.data),
-                Tipo: item.tipo,
-                Descrição: item.descricao,
-                Valor: item.valor
-            }));
-
-            const worksheet = XLSX.utils.json_to_sheet(dadosFormatados);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Fluxo de Caixa");
-            XLSX.writeFile(workbook, "AMF_Fluxo_de_Caixa.xlsx");
-        }
-
-        function exportarPDF() {
-            if (lancamentos.length === 0) {
-                alert('Não há dados para exportar.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Cabeçalho do PDF
-            doc.setFontSize(16);
-            doc.text("AMF - Fluxo de Caixa", 14, 20);
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 26);
-
-            const colunas = ["Data", "Tipo", "Descrição", "Valor"];
-            const linhas = lancamentos.map(item => [
-                formatarData(item.data),
-                item.tipo,
-                item.descricao,
-                formatarMoeda(item.valor)
-            ]);
-
-            doc.autoTable({
-                head: [colunas],
-                body: linhas,
-                startY: 34,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42] }
-            });
-
-            doc.save("AMF_Fluxo_de_Caixa.pdf");
-        }
-
-        // Executa carregamento inicial ao abrir a página
-        atualizarInterface();
-    </script>
-</body>
-</html>
+            if (lancamentos.length ===
