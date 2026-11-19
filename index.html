@@ -68,6 +68,25 @@
                 </div>
             </div>
 
+            <!-- DADOS DA EMPRESA (COMPACTO E MODERNO) -->
+            <div class="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <div>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Nome Empresarial:</span>
+                        <span id="empresa-razao" class="font-semibold text-slate-800 ml-1">DW SENA E COLLINS PET LOUNGE LTDA</span>
+                    </div>
+                    <span class="hidden md:inline text-gray-300">|</span>
+                    <div>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Nome Fantasia:</span>
+                        <span id="empresa-fantasia" class="font-medium text-slate-700 ml-1">SENA E COLINS PET LOUNGE</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-md self-start md:self-auto">
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">CNPJ:</span>
+                    <span id="empresa-cnpj" class="font-semibold text-slate-800">67.130.121/001-29</span>
+                </div>
+            </div>
+
             <!-- FILTROS DE ANO, MÊS E SEMANA -->
             <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
@@ -735,7 +754,11 @@
 
         function exportarPDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+            const razao = document.getElementById('empresa-razao')?.innerText || 'DW SENA E COLLINS PET LOUNGE LTDA';
+            const fantasia = document.getElementById('empresa-fantasia')?.innerText || 'SENA E COLINS PET LOUNGE';
+            const cnpj = document.getElementById('empresa-cnpj')?.innerText || '67.130.121/001-29';
 
             const anoSelect = document.getElementById('filtro-ano');
             const mesSelect = document.getElementById('filtro-mes');
@@ -745,13 +768,17 @@
             const mesTexto = mesSelect.options[mesSelect.selectedIndex].text;
             const semanaTexto = semanaSelect.options[semanaSelect.selectedIndex].text;
 
-            doc.setFontSize(16);
+            doc.setFontSize(15);
             doc.setTextColor(15, 23, 42);
-            doc.text("AMF - Demonstrativo & Fluxo de Caixa", 14, 18);
+            doc.text("AMF - Demonstrativo & Fluxo de Caixa", 14, 16);
 
-            doc.setFontSize(10);
+            doc.setFontSize(9);
+            doc.setTextColor(51, 65, 85);
+            doc.text(`${razao}  •  Fantasia: ${fantasia}  •  CNPJ: ${cnpj}`, 14, 22);
+
+            doc.setFontSize(9);
             doc.setTextColor(100, 116, 139);
-            doc.text(`Período: ${anoTexto} | ${mesTexto} | ${semanaTexto}`, 14, 25);
+            doc.text(`Período: ${anoTexto} | ${mesTexto} | ${semanaTexto}`, 14, 27);
 
             const linhas = [
                 ["(+) Recebimentos", document.getElementById('dre-receita').innerText],
@@ -768,7 +795,13 @@
                 head: [["Fluxo de caixa empresa", "Valor"]],
                 body: linhas,
                 startY: 32,
+                margin: { left: 14, right: 14 },
+                tableWidth: 269,
                 theme: 'grid',
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3.5
+                },
                 headStyles: {
                     fillColor: [248, 250, 252],
                     textColor: [30, 41, 59],
@@ -777,8 +810,8 @@
                     lineWidth: 0.1
                 },
                 columnStyles: {
-                    0: { cellWidth: 130 },
-                    1: { halign: 'right', fontStyle: 'bold' }
+                    0: { cellWidth: 209 },
+                    1: { cellWidth: 60, halign: 'right', fontStyle: 'bold' }
                 },
                 didParseCell: function (data) {
                     if (data.section === 'body') {
