@@ -68,22 +68,12 @@
                 </div>
             </div>
 
-            <!-- DADOS DA EMPRESA (COMPACTO E MODERNO) -->
-            <div class="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs">
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <div>
-                        <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Nome Empresarial:</span>
-                        <span id="empresa-razao" class="font-semibold text-slate-800 ml-1">DW SENA E COLLINS PET LOUNGE LTDA</span>
-                    </div>
-                    <span class="hidden md:inline text-gray-300">|</span>
-                    <div>
-                        <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Nome Fantasia:</span>
-                        <span id="empresa-fantasia" class="font-medium text-slate-700 ml-1">SENA E COLINS PET LOUNGE</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-md self-start md:self-auto">
-                    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">CNPJ:</span>
-                    <span id="empresa-cnpj" class="font-semibold text-slate-800">67.130.121/001-29</span>
+            <!-- DADOS DA EMPRESA (À DIREITA, NA ORDEM EXATA) -->
+            <div class="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200 flex justify-end">
+                <div class="text-right text-xs leading-relaxed text-slate-800">
+                    <div id="empresa-razao" class="font-semibold">DW SENA E COLLINS PET LOUNGE LTDA</div>
+                    <div id="empresa-fantasia">SENA E COLINS PET LOUNGE</div>
+                    <div id="empresa-cnpj">CNPJ:67.130.121/001-29</div>
                 </div>
             </div>
 
@@ -758,7 +748,7 @@
 
             const razao = document.getElementById('empresa-razao')?.innerText || 'DW SENA E COLLINS PET LOUNGE LTDA';
             const fantasia = document.getElementById('empresa-fantasia')?.innerText || 'SENA E COLINS PET LOUNGE';
-            const cnpj = document.getElementById('empresa-cnpj')?.innerText || '67.130.121/001-29';
+            const cnpj = document.getElementById('empresa-cnpj')?.innerText || 'CNPJ:67.130.121/001-29';
 
             const anoSelect = document.getElementById('filtro-ano');
             const mesSelect = document.getElementById('filtro-mes');
@@ -774,7 +764,9 @@
 
             doc.setFontSize(9);
             doc.setTextColor(51, 65, 85);
-            doc.text(`${razao}  •  Fantasia: ${fantasia}  •  CNPJ: ${cnpj}`, 14, 22);
+            doc.text(razao, 283, 14, { align: 'right' });
+            doc.text(fantasia, 283, 19, { align: 'right' });
+            doc.text(cnpj, 283, 24, { align: 'right' });
 
             doc.setFontSize(9);
             doc.setTextColor(100, 116, 139);
