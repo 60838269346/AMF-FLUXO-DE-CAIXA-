@@ -370,6 +370,11 @@
 
     <!-- Script de Controle, Senha, Filtros e CRUD Completo -->
     <script>
+        // Configuração JSONBin
+        const JSONBIN_BIN_ID = "6afde0adac6210605a926adc";
+        const JSONBIN_API_KEY = "$2a$10$2gRuysiXM85zMZ4OTG2dU.AEaN0WyPHJveZ2wy62/tqidY73EOJBS";
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-fluxo').className = "px-3 py-2 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-300 hover:text-white hover:bg-slate-700";
@@ -400,7 +405,7 @@
             }
         }
 
-        // Banco de Dados Local
+        // Banco de Dados Local + Sincronização JSONBin
         let contasAnaliticas = JSON.parse(localStorage.getItem('amf_contas')) || [
             { id: 1, nome: 'Vendas Online', grupo: 'Recebimento' },
             { id: 2, nome: 'Prestação de Serviços', grupo: 'Recebimento' },
@@ -415,6 +420,65 @@
         ];
 
         let lancamentos = JSON.parse(localStorage.getItem('amf_lancamentos')) || [];
+
+        async function salvarNaNuvem() {
+            localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+
+            try {
+                const resp = await fetch(JSONBIN_URL, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify({
+                        contasAnaliticas,
+                        lancamentos
+                    })
+                });
+                if (!resp.ok) {
+                    console.error("Erro ao salvar no JSONBin:", resp.status);
+                }
+            } catch (err) {
+                console.error("Falha de rede ao salvar no JSONBin:", err);
+            }
+        }
+
+        async function carregarDaNuvem() {
+            try {
+                const resp = await fetch(`${JSONBIN_URL}/latest`, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                if (!resp.ok) return;
+
+                const data = await resp.json();
+                const record = data.record || {};
+
+                let atualizou = false;
+                if (Array.isArray(record.lancamentos)) {
+                    lancamentos = record.lancamentos;
+                    localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+                    atualizou = true;
+                }
+                if (Array.isArray(record.contasAnaliticas) && record.contasAnaliticas.length > 0) {
+                    contasAnaliticas = record.contasAnaliticas;
+                    localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+                    atualizou = true;
+                }
+
+                if (atualizou) {
+                    carregarSelectContas();
+                    atualizarTabelaContas();
+                    renderizarTabelaLancamentos();
+                    atualizarTela();
+                }
+            } catch (err) {
+                console.error("Falha ao carregar do JSONBin:", err);
+            }
+        }
 
         // Funções de Gestão de Contas Analíticas
         function carregarSelectContas() {
@@ -468,7 +532,7 @@
                 alert('Conta analítica cadastrada com sucesso!');
             }
 
-            localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+            salvarNaNuvem();
             atualizarTabelaContas();
             carregarSelectContas();
             atualizarTela();
@@ -498,7 +562,7 @@
         function excluirContaAnalitica(id) {
             if (!solicitarSenha()) return;
             contasAnaliticas = contasAnaliticas.filter(c => c.id !== id);
-            localStorage.setItem('amf_contas', JSON.stringify(contasAnaliticas));
+            salvarNaNuvem();
             atualizarTabelaContas();
             carregarSelectContas();
             atualizarTela();
@@ -554,7 +618,7 @@
                 alert('Lançamento adicionado com sucesso!');
             }
 
-            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            salvarNaNuvem();
             limparFormularioLancamento();
             atualizarTela();
             renderizarTabelaLancamentos();
@@ -598,7 +662,7 @@
         function excluirLancamento(id) {
             if (!solicitarSenha()) return;
             lancamentos = lancamentos.filter(l => l.id !== id);
-            localStorage.setItem('amf_lancamentos', JSON.stringify(lancamentos));
+            salvarNaNuvem();
             atualizarTela();
             renderizarTabelaLancamentos();
             alert('Lançamento excluído com sucesso!');
@@ -670,31 +734,75 @@
         }
 
         function exportarPDF() {
-            if (lancamentos.length === 0) {
-                alert('Não há lançamentos para exportar.');
-                return;
-            }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("AMF - Extrato de Lançamentos", 14, 15);
-            
-            const colunas = ["Ano", "Mês", "Semana", "Grupo", "Conta", "Histórico", "Valor"];
-            const linhas = lancamentos.map(item => [
-                item.ano,
-                item.mes,
-                `Sem. ${item.semana}`,
-                item.grupo,
-                item.conta,
-                item.historico,
-                formatarMoeda(item.valor)
-            ]);
+
+            const anoSelect = document.getElementById('filtro-ano');
+            const mesSelect = document.getElementById('filtro-mes');
+            const semanaSelect = document.getElementById('filtro-semana');
+
+            const anoTexto = anoSelect.options[anoSelect.selectedIndex].text;
+            const mesTexto = mesSelect.options[mesSelect.selectedIndex].text;
+            const semanaTexto = semanaSelect.options[semanaSelect.selectedIndex].text;
+
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("AMF - Demonstrativo & Fluxo de Caixa", 14, 18);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Período: ${anoTexto} | ${mesTexto} | ${semanaTexto}`, 14, 25);
+
+            const linhas = [
+                ["(+) Recebimentos", document.getElementById('dre-receita').innerText],
+                ["(-) Impostos", document.getElementById('dre-impostos').innerText],
+                ["(-) Custos", document.getElementById('dre-custos').innerText],
+                ["(-) Pessoal", document.getElementById('dre-pessoal').innerText],
+                ["(-) Comissões", document.getElementById('dre-comissoes').innerText],
+                ["(=) Margem de Contribuição", document.getElementById('dre-margem').innerText],
+                ["(-) Despesas Fixas e Variáveis", document.getElementById('dre-despesas').innerText],
+                ["(=) Lucro Operacional Líquido", document.getElementById('dre-lucro').innerText]
+            ];
 
             doc.autoTable({
-                head: [colunas],
+                head: [["Fluxo de caixa empresa", "Valor"]],
                 body: linhas,
-                startY: 25,
+                startY: 32,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [248, 250, 252],
+                    textColor: [30, 41, 59],
+                    fontStyle: 'bold',
+                    lineColor: [226, 232, 240],
+                    lineWidth: 0.1
+                },
+                columnStyles: {
+                    0: { cellWidth: 130 },
+                    1: { halign: 'right', fontStyle: 'bold' }
+                },
+                didParseCell: function (data) {
+                    if (data.section === 'body') {
+                        const label = data.row.raw[0];
+                        if (label.includes("Margem de Contribuição")) {
+                            data.cell.styles.fillColor = [248, 250, 252];
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [15, 23, 42];
+                        } else if (label.includes("Lucro Operacional Líquido")) {
+                            data.cell.styles.fillColor = [239, 246, 255];
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [30, 58, 138];
+                        } else if (data.column.index === 1) {
+                            if (label.startsWith("(+)")) {
+                                data.cell.styles.textColor = [5, 150, 105];
+                            } else if (label.startsWith("(-)")) {
+                                data.cell.styles.textColor = [225, 29, 72];
+                            }
+                        }
+                    }
+                }
             });
-            doc.save("amf_fluxo_de_caixa.pdf");
+
+            doc.save("amf_demonstrativo_fluxo_de_caixa.pdf");
         }
 
         function formatarMoeda(valor) {
@@ -747,6 +855,7 @@
         carregarSelectContas();
         atualizarTabelaContas();
         atualizarTela();
+        carregarDaNuvem();
     </script>
 </body>
 </html>
